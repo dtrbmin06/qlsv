@@ -50,7 +50,8 @@ def index():
     else:
         students = conn.execute('SELECT * FROM students').fetchall()
     conn.close()
-    return render_template('index.html', students=students, search_query=search_query)
+    return render_template('home.html', students=students, search_query=search_query)
+
 
 
 # Chức năng Thêm sinh viên
@@ -112,13 +113,28 @@ def login():
             session['student_id']=user['student_id']
             session['name']=user['name']
             session['role']=user['role']
+            session['major']=user['major']
 
-            return redirect(url_for('index'))
+            if session['role']=='admin':
+                return redirect(url_for('manage'))
+            else:
+                return redirect(url_for('profile'))
         else:
             return "Sai tài khoản hoặc mật khẩu!"
 
     return render_template('login.html')
 
+
+@app.route('/profile',methods=['GET'])
+def profile():
+    if 'student_id' not in session:
+        return redirect(url_for('login'))
+
+    name=session['name']
+    id=session['student_id']
+    major=session['major']
+
+    return render_template('profile.html',name=name,student_id=id,major=major)
 
 if __name__ == '__main__':
     init_db()

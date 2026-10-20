@@ -1,16 +1,82 @@
-
-
-
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+    .bg-gradient-dark {
+        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+        min-height: 89vh;
+        border-radius: 15px;
+        padding-top: 5rem;
+    }
 
-<form method="POST" action="/login">
-    <input type="text" name="username">
-    <input type="password" name="password">
+    .glass-card-dark {
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
 
-    <button type="submit">Đăng nhập</button>
-</form>
+    .input-dark {
+        background-color: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #ffffff;
+    }
 
+    .input-dark:focus {
+        background-color: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+        outline: none;
+    }
+
+    .input-dark::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .btn-pro-blue {
+        background: linear-gradient(to right, #1e3a8a, #2563eb);
+        border: none;
+        border-radius: 10px;
+        color: white;
+        transition: all 0.8s ease;
+    }
+
+    .btn-pro-blue:hover {
+        background: linear-gradient(to right, #2563eb, #3b82f6);
+        transform: translateY(-4px);
+    }
+</style>
+
+<div class="bg-gradient-dark w-100 shadow-lg">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card p-4 glass-card-dark">
+
+                    <div class="text-center mb-4">
+                        <h2 class="fw-bold text-white"> PTIT Portal</h2>
+                        <p class="text-light" style="opacity: 0.8;">Hệ thống Quản lý Đào tạo</p>
+                    </div>
+
+                    <form method="POST" action="/login">
+                        <div class="mb-3">
+                            <label class="form-label text-light fw-semibold">Mã Sinh Viên</label>
+                            <input type="text" name="username" class="form-control input-dark p-2" style="border-radius: 10px;" placeholder="VD: B24DCCN422" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label text-light fw-semibold">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control input-dark p-2" style="border-radius: 10px;" placeholder="••••••••" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-pro-blue w-100 fw-bold p-2 fs-5 shadow-sm">Đăng Nhập</button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
-</html>
