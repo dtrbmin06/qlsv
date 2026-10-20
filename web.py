@@ -1,7 +1,8 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 
 app = Flask(__name__)
+app.secret_key='qlsv'
 
 
 # Hàm kết nối CSDL SQLite
@@ -20,9 +21,18 @@ def init_db():
             student_id TEXT NOT NULL UNIQUE,
             name TEXT NOT NULL,
             email TEXT NOT NULL,
-            major TEXT NOT NULL
+            major TEXT NOT NULL,
+            password TEXT NOT NULL,
+            role TEXT DEFAULT 'student'
         )
     ''')
+
+    conn.execute('''INSERT OR IGNORE INTO students(student_id,name,email,major,password,role) Values('admin','Quản trị viên', 'admin@ptit.edu.vn','Quan tri vien',123456,'admin')
+    ''')
+    conn.execute('''
+    INSERT OR IGNORE INTO students(student_id,name,email,major,password,role) Values('B24DCCN422','Nguyễn Trọng Nghĩa','nghiapro130206@gmail.com','CNTT','nghiadai123','student')
+    ''')
+
     conn.commit()
     conn.close()
 
@@ -86,6 +96,28 @@ def delete_student(id):
     conn.commit()
     conn.close()
     return redirect(url_for('index'))
+
+
+
+@app.route('/login',methods=['GET','POST'])
+def login():
+    if request.method=='POST':
+        tai_khoan=request.form['username']
+        mk=request.form['password']
+
+        conn=get_db_connection()
+        user=conn.execute('Select * from students where student_id = ? and password = ? ',(tai_khoan,mk)).fetchone()
+
+        if user:
+            session['student_id']=user['student_id']
+            session['name']=user['name']
+            session['role']=user['role']
+
+            return redirect(url_for('index'))
+        else:
+            return "Sai tài khoản hoặc mật khẩu!"
+
+    return render_template('login.html')
 
 
 if __name__ == '__main__':
