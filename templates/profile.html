@@ -8,11 +8,11 @@
         <div class="col-md-4">
             <div class="card shadow-sm">
                 <div class="card-body text-center">
-                    <img src="https://ui-avatars.com/api/?name=Sinh+Vien&background=random&size=150" alt="Avatar" class="rounded-circle img-fluid mb-3">
+                    <img src="https://ui-avatars.com/api/?name={{name}}&background=random&size=150" alt="Avatar" class="rounded-circle img-fluid mb-3">
 
-                    <h4>Ten sinh vien</h4>
-                    <p class="text-secondary">Ma sv: </p>
-                    <p class="test-secondary">Nganh: </p>
+                    <h4>{{name}}</h4>
+                    <p class="text-secondary">Mã sinh viên: {{student_id}} </p>
+                    <p class="text-secondary">Ngành: {{major}} </p>
 
                     <button class="btn btn-primary btn-sm">Chinh sua anh</button>
                 </div>
@@ -23,22 +23,18 @@
         <div class="col-md-8">
             <div class="card shadow-sm">
                 <div class="card-header bg-white fw-bold">
-                    Thong tin ca nhan
+                    Thông tin cá nhân
                 </div>
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><strong>Ho va ten: </strong>Ten o day</li>
-                    </ul>
+                        <li class="list-group-item d-flex justify-content-between"><strong>Họ và tên: </strong>{{name}}</li>
 
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <strong>Email: </strong> Emaill vao day
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Email: </strong>{{email}}
                         </li>
-                    </ul>
 
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <strong>Vai tro:</strong> Role o day
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Vai trò:</strong>{{role}}
                         </li>
                     </ul>
                 </div>
@@ -51,4 +47,6 @@
     </div>
 </div>
 
+
+<a href="/logout" class="btn btn-danger fw-bold">Đăng xuất</a>
 {% endblock %}

@@ -30,7 +30,7 @@ def init_db():
     conn.execute('''INSERT OR IGNORE INTO students(student_id,name,email,major,password,role) Values('admin','Quản trị viên', 'admin@ptit.edu.vn','Quan tri vien',123456,'admin')
     ''')
     conn.execute('''
-    INSERT OR IGNORE INTO students(student_id,name,email,major,password,role) Values('B24DCCN422','Nguyễn Trọng Nghĩa','nghiapro130206@gmail.com','CNTT','nghiadai123','student')
+    INSERT OR IGNORE INTO students(student_id,name,email,major,password,role) Values('B24DCCN422','Nguyễn Trọng Nghĩa','nghiapro130206@gmail.com','CNTT','11111','student')
     ''')
 
     conn.commit()
@@ -114,6 +114,7 @@ def login():
             session['name']=user['name']
             session['role']=user['role']
             session['major']=user['major']
+            session['email']=user['email']
 
             if session['role']=='admin':
                 return redirect(url_for('manage'))
@@ -133,8 +134,17 @@ def profile():
     name=session['name']
     id=session['student_id']
     major=session['major']
+    email=session['email']
+    role=session['role']
 
-    return render_template('profile.html',name=name,student_id=id,major=major)
+    return render_template('profile.html',name=name,student_id=id,major=major,email=email,role=role)
+
+
+@app.route('/logout')
+def logout():
+    session.clear()
+
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     init_db()

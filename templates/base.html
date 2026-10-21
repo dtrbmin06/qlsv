@@ -7,11 +7,20 @@
 
 </head>
 <body>
-    <div style="background-color: lightgray; padding: 10px;">
-        <a href="/">Trang chủ</a> | <a href="/login">Login</a>
-    </div>
+    <nav class="navbar navbar-dark shadow-sm bg-dark" style="background-color: #0f2027;">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">
+                PTIT Portal
+            </a>
 
-<br>
+            <div class="d-flex ms-auto">
+            <a class="nav-link text-white fw-bold" href="/login">
+                Login
+            </a>
+            </div>
+        </div>
+    </nav>
+
 
 {% block content %}
 {% endblock %}
