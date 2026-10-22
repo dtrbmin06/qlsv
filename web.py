@@ -140,6 +140,10 @@ def profile():
     return render_template('profile.html',name=name,student_id=id,major=major,email=email,role=role)
 
 
+@app.route('/manage',methods=['GET'])
+def manage():
+    return render_template('manage.html')
+
 @app.route('/logout')
 def logout():
     session.clear()
