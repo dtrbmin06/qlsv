@@ -1,83 +1,53 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<style>
-    /* Gradient xanh dương cho tiêu đề bảng */
-    .profile-header {
-        background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
-        color: white;
-    }
-    /* Chỉnh màu và kích thước cho các icon */
-    .icon-blue {
-        color: #0d6efd;
-        font-size: 1.2rem;
-        margin-right: 12px;
-    }
-</style>
-
-<div class="container mt-5 mb-5">
-    <div class="row">
-
-        <!-- CỘT TRÁI: Avatar và các nút thao tác -->
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-body text-center p-4">
-                    <!-- Đổi màu nền avatar thành xanh dương (background=0d6efd) -->
-                    <img src="https://ui-avatars.com/api/?name={{name}}&background=0d6efd&color=fff&size=150" alt="Avatar" class="rounded-circle img-fluid mb-3 shadow-sm border border-3 border-primary">
-
-                    <h4 class="fw-bold text-primary">{{name}}</h4>
-                    <p class="text-secondary mb-1">Mã sinh viên: <strong class="text-dark">{{student_id}}</strong></p>
-                    <p class="text-secondary mb-4">Ngành: <span class="badge bg-info text-dark">{{major}}</span></p>
-
-                    <!-- Nút chức năng xếp dọc gọn gàng -->
-                    <button class="btn btn-outline-primary w-100 mb-2 fw-bold">
-                        <i class="bi bi-camera me-2"></i>Chỉnh sửa ảnh
-                    </button>
-                    <a href="/logout" class="btn btn-danger w-100 fw-bold shadow-sm">
-                        <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
-                    </a>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <!-- Cột Avatar -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm text-center p-3">
+                <div class="card-body">
+                    <img src="https://ui-avatars.com/api/?name={{ user['name'] }}&background=random&size=150" alt="Avatar" class="rounded-circle img-fluid mb-3 shadow-sm">
+                    <h4 class="fw-bold">{{ user['name'] }}</h4>
+                    <p class="text-muted mb-1">Mã SV: <strong>{{ user['student_id'] }}</strong></p>
+                    <p class="text-muted">Ngành: <strong>{{ user['major'] }}</strong></p>
                 </div>
             </div>
         </div>
 
-        <!-- CỘT PHẢI: Khối thông tin chi tiết -->
-        <div class="col-md-8 mb-4">
-            <div class="card shadow-sm border-0 h-100">
-                <div class="card-header profile-header fw-bold p-3 border-0">
-                    <i class="bi bi-person-vcard me-2"></i>Thông tin cá nhân
-                </div>
-                <div class="card-body p-0">
-                    <ul class="list-group list-group-flush rounded-bottom">
-
-                        <li class="list-group-item d-flex justify-content-between align-items-center p-4">
-                            <div>
-                                <i class="bi bi-person-fill icon-blue"></i>
-                                <span class="text-muted fw-bold">Họ và tên</span>
-                            </div>
-                            <strong class="text-dark">{{name}}</strong>
-                        </li>
-
-                        <li class="list-group-item d-flex justify-content-between align-items-center p-4">
-                            <div>
-                                <i class="bi bi-envelope-fill icon-blue"></i>
-                                <span class="text-muted fw-bold">Email liên hệ</span>
-                            </div>
-                            <strong class="text-primary">{{email}}</strong>
-                        </li>
-
-                        <li class="list-group-item d-flex justify-content-between align-items-center p-4">
-                            <div>
-                                <i class="bi bi-shield-lock-fill icon-blue"></i>
-                                <span class="text-muted fw-bold">Vai trò hệ thống</span>
-                            </div>
-                            <span class="badge bg-primary rounded-pill px-3 py-2">{{role}}</span>
-                        </li>
-
+        <!-- Cột Thông tin & Đổi Pass -->
+        <div class="col-md-7">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white fw-bold text-primary">Thông Tin Cá Nhân</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between"><span>Họ và tên:</span> <strong>{{ user['name'] }}</strong></li>
+                        <li class="list-group-item d-flex justify-content-between"><span>Mã Sinh Viên:</span> <strong>{{ user['student_id'] }}</strong></li>
+                        <li class="list-group-item d-flex justify-content-between"><span>Email:</span> <strong>{{ user['email'] }}</strong></li>
+                        <li class="list-group-item d-flex justify-content-between"><span>Ngành Học:</span> <strong>{{ user['major'] }}</strong></li>
+                        <li class="list-group-item d-flex justify-content-between"><span>Vai trò:</span> <span class="badge bg-success">{{ user['role'] }}</span></li>
                     </ul>
                 </div>
             </div>
-        </div>
 
+            <!-- Form Đổi Mật Khẩu -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white fw-bold text-danger">Đổi Mật Khẩu</div>
+                <div class="card-body">
+                    <form action="/change-password" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu hiện tại</label>
+                            <input type="password" name="old_password" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mật khẩu mới</label>
+                            <input type="password" name="new_password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-danger fw-bold">Cập Nhật Mật Khẩu</button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

@@ -1,31 +1,68 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Web Quản Lý</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTIT Portal - Quản Lý Sinh Viên</title>
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="[https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css](https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css)">
-
 </head>
-<body>
-    <nav class="navbar navbar-dark shadow-sm bg-dark" style="background-color: #0f2027;">
+<body class="bg-light">
+
+    <!-- Thanh Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #0f2027;">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/">
+            <!-- Logo / Tên portal: Tự động chuyển đến index nếu đã đăng nhập, ngược lại về login -->
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') if session.get('student_id') else url_for('login') }}">
                 PTIT Portal
             </a>
 
-            <div class="d-flex ms-auto">
-            <a class="nav-link text-white fw-bold" href="/login">
-                Login
-            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <div class="d-flex ms-auto align-items-center">
+                    {% if session.get('student_id') %}
+                        <!-- Menu dành cho người dùng đã đăng nhập -->
+                        <a class="btn btn-outline-light btn-sm me-2 fw-semibold" href="{{ url_for('index') }}">Danh Sách SV</a>
+
+                        {% if session.get('role') == 'admin' %}
+                            <a class="btn btn-outline-warning btn-sm me-2 fw-semibold" href="{{ url_for('manage') }}">Trang Admin</a>
+                        {% endif %}
+
+                        <a class="btn btn-outline-info btn-sm me-3 fw-semibold" href="{{ url_for('profile') }}">Hồ Sơ</a>
+
+                        <span class="text-white me-3 d-none d-md-inline">Chào, <strong>{{ session.get('name') }}</strong></span>
+                        <a class="btn btn-danger btn-sm fw-bold" href="{{ url_for('logout') }}">Đăng Xuất</a>
+                    {% else %}
+                        <!-- Menu dành cho khách chưa đăng nhập -->
+                        <a class="btn btn-primary btn-sm fw-bold px-3" href="{{ url_for('login') }}">Đăng Nhập</a>
+                    {% endif %}
+                </div>
             </div>
         </div>
     </nav>
 
+    <!-- Khu vực hiển thị thông báo Flash (Thông báo lỗi, thành công) -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+    </div>
 
-{% block content %}
-{% endblock %}
+    <!-- Nội dung của các trang con (home, manage, profile, login) sẽ chèn vào đây -->
+    {% block content %}
+    {% endblock %}
 
+    <!-- Bootstrap 5 JavaScript Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
