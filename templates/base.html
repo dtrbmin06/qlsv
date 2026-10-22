@@ -45,18 +45,18 @@
     </nav>
 
     <!-- Khu vực hiển thị thông báo Flash (Thông báo lỗi, thành công) -->
-    <div class="container mt-3">
         {% with messages = get_flashed_messages() %}
           {% if messages %}
+            <div class="container mt-3">
             {% for message in messages %}
               <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
                 {{ message }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
+            </div>
             {% endfor %}
           {% endif %}
         {% endwith %}
-    </div>
 
     <!-- Nội dung của các trang con (home, manage, profile, login) sẽ chèn vào đây -->
     {% block content %}

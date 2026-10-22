@@ -25,9 +25,32 @@ def init_db():
             name TEXT NOT NULL,
             email TEXT NOT NULL,
             major TEXT NOT NULL,
-            password TEXT NOT NULL,
+            password TEXT,
             role TEXT DEFAULT 'student'
         )
+    ''')
+
+    conn.execute('''
+    CREATE TABLE if not exists subjects (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject_id TEXT NOT NULL UNIQUE,
+        subject_name TEXT NOT NULL,
+        credits INTEGER NOT NULL 
+        )
+    '''
+    )
+
+    conn.execute('''
+    CREATE TABLE if not exists grades(
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          student_id TEXT NOT NULL,
+          subject_id TEXT NOT NULL,
+          attendance_score  FLOAT,
+          midterm_score FLOAT,
+          final_score float,
+          FOREIGN KEY (student_id) REFERENCES students (student_id),
+          FOREIGN KEY (subject_id) REFERENCES subjects (subject_id)
+          )
     ''')
 
     admin_pass = generate_password_hash('123456')
@@ -42,6 +65,22 @@ def init_db():
         INSERT OR IGNORE INTO students(student_id, name, email, major, password, role) 
         VALUES('B24DCCN422', 'Nguyễn Trọng Nghĩa', 'nghiapro130206@gmail.com', 'CNTT', ?, 'student')
     ''', (student_pass,))
+
+    # Tạo 4 môn học
+    conn.executescript('''
+            INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('INT1154', 'Cấu trúc dữ liệu và Giải thuật', 3);
+            INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('INT1339', 'Lập trình hướng đối tượng', 3);
+            INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('INT1340', 'Cơ sở dữ liệu', 3);
+            INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('BAS1203', 'Giải tích 1', 3);
+        ''')
+
+    # Nhập điểm cho 4 môn của B24DCCN422
+    conn.executescript('''
+            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1154', 10.0, 8.5, 9.0);
+            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1339', 9.0, 7.5, 8.0);
+            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1340', 10.0, 9.0, 8.5);
+            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'BAS1203', 8.0, 6.5, 7.0);
+        ''')
 
     conn.commit()
     conn.close()
@@ -135,17 +174,26 @@ def add_student():
     name = request.form['name'].strip()
     email = request.form['email'].strip()
     major = request.form['major'].strip()
-    default_pass = generate_password_hash('123456')
+
 
     if not student_id or not name or not email or not major:
         flash("Vui lòng điền đầy đủ thông tin!")
         return redirect(url_for('manage'))
 
+    s = name.split()
+    mainname = s[-1]
+
+    c = ''
+    for i in range(len(s) - 1):
+        c += s[i][0]
+    password = f"{mainname}{c}.{student_id}"
+
     conn = get_db_connection()
     try:
+        mk_ma_hoa=generate_password_hash(password)
         conn.execute(
             'INSERT INTO students (student_id, name, email, major, password) VALUES (?, ?, ?, ?, ?)',
-            (student_id, name, email, major, default_pass)
+            (student_id, name, email, major, mk_ma_hoa)
         )
         conn.commit()
         flash("Thêm sinh viên mới thành công!")
@@ -265,18 +313,25 @@ def profile():
 
     conn = get_db_connection()
     user = conn.execute('SELECT * FROM students WHERE student_id = ?', (session['student_id'],)).fetchone()
+
+    grades=conn.execute('''
+    select s.subject_id,s.subject_name,s.credits,g.id,g.attendance_score,g.midterm_score,g.final_score
+    from subjects
+    join grades g on g.subject_id=s.subject_id
+    where g.student_id=?
+    ''',(session['student_id'],)).fetchall()
+
+
     conn.close()
 
     # Cập nhật lại session name phòng trường hợp đã bị sửa
     if user:
         session['name'] = user['name']
 
-    return render_template('profile.html', user=user)
+    return render_template('profile.html', user=user,grades=grades)
 
 
-@app.route('/manage',methods=['GET'])
-def manage():
-    return render_template('manage.html')
+
 
 @app.route('/logout')
 def logout():
