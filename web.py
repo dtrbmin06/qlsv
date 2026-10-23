@@ -22,11 +22,27 @@ def init_db():
         CREATE TABLE IF NOT EXISTS students (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             student_id TEXT NOT NULL UNIQUE,
+            password text,
+            role text default 'student',
+            
             name TEXT NOT NULL,
             email TEXT NOT NULL,
+            gender TEXT NOT NULL,
+            CCCD text not null,
+            address text not null,
+            birth text not null,
+            religion text,
+            ethnic_group text,
+            
             major TEXT NOT NULL,
-            password TEXT,
-            role TEXT DEFAULT 'student'
+            faculty text,
+            cohort text,
+            academic_year text,
+            status text DEFAULT 'Đang học',
+            class text not null,
+            
+            advisor_id text,
+            Foreign key (advisor_id) references advisors (advisor_id)
         )
     ''')
 
@@ -50,6 +66,16 @@ def init_db():
           final_score float,
           FOREIGN KEY (student_id) REFERENCES students (student_id),
           FOREIGN KEY (subject_id) REFERENCES subjects (subject_id)
+          )
+    ''')
+
+    conn.execute('''
+    CREATE Table if not exists advisors(
+          id Integer primary key autoincrement,
+          advisor_id text not null unique,
+          name text not null,
+          email text not null,
+          sdt text not null
           )
     ''')
 
@@ -316,10 +342,15 @@ def profile():
 
     grades=conn.execute('''
     select s.subject_id,s.subject_name,s.credits,g.id,g.attendance_score,g.midterm_score,g.final_score
-    from subjects
+    from subjects s
     join grades g on g.subject_id=s.subject_id
     where g.student_id=?
     ''',(session['student_id'],)).fetchall()
+
+    advisor=None
+
+    if user and user['advisor_id']:
+        advisor=conn.execute('Select * from advisors where advisor_id=?',(user['advisor_id'],)).fetchone()
 
 
     conn.close()
@@ -328,7 +359,7 @@ def profile():
     if user:
         session['name'] = user['name']
 
-    return render_template('profile.html', user=user,grades=grades)
+    return render_template('profile.html', user=user,grades=grades,advisor=advisor)
 
 
 
