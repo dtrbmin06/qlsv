@@ -79,20 +79,35 @@ def init_db():
           )
     ''')
 
+
+    conn.execute('''
+            INSERT OR IGNORE INTO advisors (advisor_id, name, email, sdt) 
+            VALUES ('KCN101000', 'Nguyễn Quang Hưng', 'hungnq1@ptit.edu.vn', '0949790117')
+        ''')
+
     admin_pass = generate_password_hash('123456')
     student_pass = generate_password_hash('11111')
 
-    conn.execute('''
-        INSERT OR IGNORE INTO students(student_id, name, email, major, password, role) 
-        VALUES('admin', 'Quản trị viên', 'admin@ptit.edu.vn', 'Quan tri vien', ?, 'admin')
-    ''', (admin_pass,))
 
     conn.execute('''
-        INSERT OR IGNORE INTO students(student_id, name, email, major, password, role) 
-        VALUES('B24DCCN422', 'Nguyễn Trọng Nghĩa', 'nghiapro130206@gmail.com', 'CNTT', ?, 'student')
-    ''', (student_pass,))
+            INSERT OR IGNORE INTO students(student_id, name, email, gender, CCCD, address, birth, major, class, password, role) 
+            VALUES('admin', 'Quản trị viên', 'admin@ptit.edu.vn', 'Nam', '000000000', 'Hà Nội', '01/01/1990', 'Admin', 'Admin', ?, 'admin')
+        ''', (admin_pass,))
 
-    # Tạo 4 môn học
+
+
+    conn.execute('''
+            INSERT OR IGNORE INTO students(
+                student_id, name, email, gender, CCCD, address, birth, religion, ethnic_group, 
+                major, faculty, cohort, academic_year, status, class, advisor_id, password, role
+            ) VALUES(
+                'B24DCCN422', 'Nguyễn Trọng Nghĩa', 'nghiapro130206@gmail.com', 'Nam', '001206123456', 
+                'Hà Nội', '13/02/2006', 'Không', 'Kinh', 
+                'CNTT', 'Công nghệ thông tin 1', 'Đại học chính quy', '2024-2029', 'Đang học', 'D24CQCN04-B', 'KCN101000', ?, 'student'
+            )
+        ''', (student_pass,))
+
+
     conn.executescript('''
             INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('INT1154', 'Cấu trúc dữ liệu và Giải thuật', 3);
             INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('INT1339', 'Lập trình hướng đối tượng', 3);
@@ -100,7 +115,7 @@ def init_db():
             INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('BAS1203', 'Giải tích 1', 3);
         ''')
 
-    # Nhập điểm cho 4 môn của B24DCCN422
+
     conn.executescript('''
             INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1154', 10.0, 8.5, 9.0);
             INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1339', 9.0, 7.5, 8.0);
@@ -112,7 +127,7 @@ def init_db():
     conn.close()
 
 
-# Đảm bảo database được khởi tạo khi app chạy
+
 init_db()
 
 
@@ -125,32 +140,10 @@ def index():
     if 'student_id' not in session:
         return redirect(url_for('login'))
 
-    search_query = request.args.get('search', '').strip()
-    page = request.args.get('page', 1, type=int)
-    offset = (page - 1) * STUDENTS_PER_PAGE
+    if is_admin():
+        return redirect(url_for('manage'))
 
-    conn = get_db_connection()
-    if search_query:
-        total_count = conn.execute(
-            "SELECT COUNT(*) FROM students WHERE name LIKE ? OR student_id LIKE ?",
-            (f'%{search_query}%', f'%{search_query}%')
-        ).fetchone()[0]
-
-        students = conn.execute(
-            "SELECT * FROM students WHERE name LIKE ? OR student_id LIKE ? LIMIT ? OFFSET ?",
-            (f'%{search_query}%', f'%{search_query}%', STUDENTS_PER_PAGE, offset)
-        ).fetchall()
-    else:
-        total_count = conn.execute("SELECT COUNT(*) FROM students").fetchone()[0]
-        students = conn.execute(
-            "SELECT * FROM students LIMIT ? OFFSET ?", (STUDENTS_PER_PAGE, offset)
-        ).fetchall()
-
-    conn.close()
-    total_pages = math.ceil(total_count / STUDENTS_PER_PAGE) if total_count > 0 else 1
-
-    return render_template('home.html', students=students, search_query=search_query,
-                           page=page, total_pages=total_pages)
+    return render_template('home.html')
 
 
 @app.route('/manage')
@@ -187,7 +180,7 @@ def manage():
     total_pages = math.ceil(total_count / STUDENTS_PER_PAGE) if total_count > 0 else 1
 
     return render_template('manage.html', students=students, search_query=search_query,
-                           page=page, total_pages=total_pages)
+      page=page, total_pages=total_pages)
 
 
 @app.route('/add', methods=['POST'])
@@ -325,7 +318,7 @@ def login():
             if session['role'] == 'admin':
                 return redirect(url_for('manage'))
             else:
-                return redirect(url_for('profile'))
+                return redirect(url_for('index'))
         else:
             flash("Sai tài khoản hoặc mật khẩu!")
 
@@ -347,10 +340,29 @@ def profile():
     where g.student_id=?
     ''',(session['student_id'],)).fetchall()
 
+    chart_labels=[]
+    chart_data=[]
+
+    for g in grades:
+        chart_labels.append(g['subject_id'])
+        sum=round(g['attendance_score']*0.1+g['midterm_score']*0.2+g['final_score']*0.7,1)
+        chart_data.append(sum)
+
     advisor=None
 
     if user and user['advisor_id']:
         advisor=conn.execute('Select * from advisors where advisor_id=?',(user['advisor_id'],)).fetchone()
+
+#Tinh gpa va so tin chi.
+    total_credits = 0
+    total_score = 0
+
+    for g in grades:
+        tong_ket = round(g['attendance_score'] * 0.1 + g['midterm_score'] * 0.2 + g['final_score'] * 0.7, 1)
+        total_credits += g['credits']
+        total_score += (tong_ket * g['credits'])
+
+    gpa = round(total_score / total_credits, 2) if total_credits > 0 else 0.0
 
 
     conn.close()
@@ -359,7 +371,7 @@ def profile():
     if user:
         session['name'] = user['name']
 
-    return render_template('profile.html', user=user,grades=grades,advisor=advisor)
+    return render_template('profile.html', user=user,grades=grades,advisor=advisor,chart_data=chart_data,chart_labels=chart_labels,gpa=gpa,total_credits=total_credits)
 
 
 

@@ -33,20 +33,55 @@
         </div>
 
         <div class="row">
+
             <div class="col-lg-4 mb-4">
+
                 <div class="card elegant-card p-4 text-center">
-                    <div class="mb-4 mt-3">
-                        <img src="https://ui-avatars.com/api/?name={{user['name']}}&background=d1ece5&color=0f766e&size=150" class="rounded-circle border border-white border-4 shadow-sm">
+                    <div class="position-relative d-inline-block mx-auto mb-4 mt-3">
+                        <img src="https://ui-avatars.com/api/?name={{user['name']}}&background=d1ece5&color=0f766e&size=150"
+                             class="rounded-circle border border-white border-4 shadow-sm"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+
+                        <button class="btn btn-light rounded-circle position-absolute bottom-0 end-0 shadow border"
+                                style="width: 40px; height: 40px; transform: translate(10%, 10%);"
+                                title="Đổi ảnh đại diện">
+                            📷
+                        </button>
                     </div>
+
                     <h3 class="serif-text fw-bold">{{user['name']}}</h3>
-                    <p class="text-muted">Mã SV: <strong>{{user['student_id']}}</strong></p>
-                    <a href="{{url_for('logout')}}" class="btn btn-outline-danger rounded-pill mt-3 w-100">Đăng xuất</a>
+                    <p class="text-muted mb-3">Mã SV: <strong>{{user['student_id']}}</strong></p>
+
+                    <a href="{{url_for('logout')}}" class="btn btn-outline-danger rounded-pill w-100">Đăng xuất</a>
+                </div>
+
+                <div class="card elegant-card p-4 mt-4">
+                    <h5 class="serif-text fw-bold mb-4">Tiến độ học tập</h5>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-end mb-2">
+                            <span class="text-muted">Điểm TBC (Hệ 10)</span>
+                            <strong class="fs-4" style="color: #0f766e;">{{ gpa }}</strong>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Tín chỉ tích lũy</span>
+                            <strong>{{ total_credits }} / 150</strong>
+                        </div>
+                        <div class="progress" style="height: 8px; background-color: #e2e8f0;">
+                            <div class="progress-bar" style="background-color: #22c55e; width: {{ (total_credits / 150) * 100 }}%;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="col-lg-8">
+
                 <div class="card elegant-card p-4 mb-4">
                     <h4 class="serif-text fw-bold mb-4">Lý lịch cá nhân</h4>
+
                     <ul class="list-group list-group-flush bg-transparent">
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
                             <span class="text-muted">Họ và tên</span>
@@ -67,6 +102,27 @@
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0 border-0">
                             <span class="text-muted">Trạng thái:</span>
                             <strong class="text-end">{{user['status']}}</strong>
+                        </li>
+                    </ul>
+
+                    <hr style="border-top: 1.5px solid #d9534f; opacity: 0.6; margin: 0.5rem 0;">
+
+                    <ul class="list-group list-group-flush bg-transparent">
+                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
+                            <span class="text-muted">Số CMND/CCCD:</span>
+                            <strong class="text-end">{{user['CCCD']}}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
+                            <span class="text-muted">Dân tộc:</span>
+                            <strong class="text-end">{{user['ethnic_group']}}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
+                            <span class="text-muted">Tôn giáo:</span>
+                            <strong class="text-end">{{user['religion']}}</strong>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0 border-0">
+                            <span class="text-muted">Địa chỉ:</span>
+                            <strong class="text-end">{{user['address']}}</strong>
                         </li>
                     </ul>
                 </div>
@@ -97,35 +153,81 @@
                     </ul>
                 </div>
 
-
-
                 <div class="card elegant-card p-4 mb-4">
                     <h4 class="serif-text fw-bold mb-4">Cố vấn học tập </h4>
                     <ul class="list-group list-group-flush bg-transparent">
+                        {% if advisor %}
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
                             <span class="text-muted">Tài khoản:</span>
-                            <strong class="text-end">{{advisors['advisor_id']}}</strong>
+                            <strong class="text-end">{{advisor['advisor_id']}}</strong>
                         </li>
-
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
                             <span class="text-muted">Họ tên:</span>
                             <strong class="text-end">{{advisor['name']}}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
                             <span class="text-muted">Email:</span>
-                            <strong class="text-end">{{advisors['email']}}</strong>
+                            <strong class="text-end">{{advisor['email']}}</strong>
                         </li>
-
-                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
+                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0 border-0">
                             <span class="text-muted">Điện thoại:</span>
                             <strong class="text-end">{{advisor['sdt']}}</strong>
                         </li>
+                        {% else %}
+                        <li class="list-group-item bg-transparent px-0 border-0 text-center">
+                            <span class="text-danger fst-italic">Chưa phân công</span>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
 
+                <div class="card elegant-card p-4 mb-4">
+                    <h4 class="serif-text fw-bold mb-4">Biểu đồ kết quả học tập</h4>
+                    <div style="height: 300px; width: 100%;">
+                        <canvas id="gradeChart"></canvas>
+                    </div>
+                </div>
 
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const labels = {{ chart_labels | tojson }};
+const dataScores = {{ chart_data | tojson }};
+
+const barColors = dataScores.map(score => score >= 4.0 ? '#22c55e' : '#ef4444');
+
+const ctx = document.getElementById('gradeChart').getContext('2d');
+
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [{
+            label: 'Điểm tổng kết',
+            data: dataScores,
+            backgroundColor: barColors,
+            borderRadius: 6,
+            maxBarThickness: 45
+        }]
+    },
+    options: {
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                max: 10
+            }
+        },
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+</script>
 {% endblock %}

@@ -2,81 +2,58 @@
 
 {% block content %}
 <style>
-    .bg-gradient-dark {
-        background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
-        min-height: 90vh;
-        border-radius: 0px;
-        padding-top: 5rem;
+    .login-wrapper {
+        min-height: calc(100vh - 160px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
-    .glass-card-dark {
-        background: rgba(15, 23, 42, 0.7);
-        backdrop-filter: blur(12px);
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    .glass-login {
+        background: rgba(255, 255, 255, 0.65);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 24px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04);
+        width: 100%;
+        max-width: 420px;
+        padding: 3rem 2.5rem;
     }
 
-    .input-dark {
-        background-color: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        color: #ffffff;
+    .glass-input {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 1px solid rgba(15, 118, 110, 0.2) !important;
+        border-radius: 12px;
+        padding: 0.75rem 1rem;
     }
 
-    .input-dark:focus {
-        background-color: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
-        outline: none;
-    }
-
-    .input-dark::placeholder {
-        color: rgba(255, 255, 255, 0.5);
-    }
-
-    .btn-pro-blue {
-        background: linear-gradient(to right, #1e3a8a, #2563eb);
-        border: none;
-        border-radius: 10px;
-        color: white;
-        transition: all 0.8s ease;
-    }
-
-    .btn-pro-blue:hover {
-        background: linear-gradient(to right, #2563eb, #3b82f6);
-        transform: translateY(-4px);
+    .glass-input:focus {
+        border-color: #0f766e !important;
+        box-shadow: 0 0 0 0.25rem rgba(15, 118, 110, 0.2) !important;
     }
 </style>
 
-<div class="bg-gradient-dark w-100 shadow-lg">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="card p-4 glass-card-dark">
+<div class="login-wrapper">
+    <div class="glass-login text-center">
+        <h2 class="serif-text fw-bold mb-2" style="color: #0f766e;">PTIT Portal</h2>
+        <p class="text-muted mb-4">Hệ thống Quản lý Đào tạo</p>
 
-                    <div class="text-center mb-4">
-                        <h2 class="fw-bold text-white"> PTIT Portal</h2>
-                        <p class="text-light" style="opacity: 0.8;">Hệ thống Quản lý Đào tạo</p>
-                    </div>
-
-                    <form method="POST" action="/login">
-                        <div class="mb-3">
-                            <label class="form-label text-light fw-semibold">Mã Sinh Viên</label>
-                            <input type="text" name="username" class="form-control input-dark p-2" style="border-radius: 10px;" placeholder="VD: B24DCCN422" required>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label text-light fw-semibold">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control input-dark p-2" style="border-radius: 10px;" placeholder="••••••••" required>
-                        </div>
-
-                        <button type="submit" class="btn btn-pro-blue w-100 fw-bold p-2 fs-5 shadow-sm">Đăng Nhập</button>
-                    </form>
-
-                </div>
+        <form action="{{ url_for('login') }}" method="POST">
+            <div class="mb-3 text-start">
+                <label class="form-label text-muted fw-medium small mb-1">Mã Sinh Viên / Tài khoản</label>
+                <input type="text" name="username" class="form-control glass-input" required autocomplete="off">
             </div>
-        </div>
+
+            <div class="mb-4 text-start">
+                <label class="form-label text-muted fw-medium small mb-1">Mật khẩu</label>
+                <input type="password" name="password" class="form-control glass-input" required>
+            </div>
+
+            <button type="submit" class="btn w-100 rounded-pill text-white fw-bold shadow-sm" style="background-color: #0f766e; padding: 12px;">
+                Đăng Nhập
+            </button>
+        </form>
     </div>
 </div>
 {% endblock %}

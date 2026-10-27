@@ -3,66 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PTIT Portal - Quản Lý Sinh Viên</title>
-    <!-- Bootstrap 5 CSS -->
+    <title>PTIT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,500;0,600;0,700;1,500&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #fdfbf4 0%, #f4eee0 40%, #d1ece5 100%);
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .serif-text {
+            font-family: 'Lora', serif;
+        }
+
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.65) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.04);
+            z-index: 1030;
+        }
+
+        .glass-nav .nav-link {
+            color: #2c3e50 !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .glass-nav .nav-link:hover {
+            color: #0f766e !important;
+        }
+
+        .glass-nav .navbar-brand {
+            color: #0f766e !important;
+            font-size: 1.5rem;
+        }
+    </style>
 </head>
-<body class="bg-light">
-
-    <!-- Thanh Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm" style="background-color: #0f2027;">
-        <div class="container">
-            <!-- Logo / Tên portal: Tự động chuyển đến index nếu đã đăng nhập, ngược lại về login -->
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') if session.get('student_id') else url_for('login') }}">
-                PTIT Portal
-            </a>
-
+<body>
+    <nav class="navbar navbar-expand-lg glass-nav sticky-top">
+        <div class="container px-lg-5">
+            <a class="navbar-brand serif-text fw-bold" href="{{ url_for('index') }}">PTIT</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
             <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="d-flex ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-center">
                     {% if session.get('student_id') %}
-                        <!-- Menu dành cho người dùng đã đăng nhập -->
-                        <a class="btn btn-outline-light btn-sm me-2 fw-semibold" href="{{ url_for('index') }}">Danh Sách SV</a>
-
                         {% if session.get('role') == 'admin' %}
-                            <a class="btn btn-outline-warning btn-sm me-2 fw-semibold" href="{{ url_for('manage') }}">Trang Admin</a>
+                            <li class="nav-item me-3">
+                                <a class="nav-link" href="{{ url_for('manage') }}">Quản lý SV</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item me-3">
+                                <a class="nav-link" href="{{ url_for('index') }}">Trang chủ</a>
+                            </li>
+
+                            <li class="nav-item me-3">
+                                <a class="nav-link" href="{{ url_for('profile') }}">Hồ sơ</a>
+                            </li>
                         {% endif %}
-
-                        <a class="btn btn-outline-info btn-sm me-3 fw-semibold" href="{{ url_for('profile') }}">Hồ Sơ</a>
-
-                        <span class="text-white me-3 d-none d-md-inline">Chào, <strong>{{ session.get('name') }}</strong></span>
-                        <a class="btn btn-danger btn-sm fw-bold" href="{{ url_for('logout') }}">Đăng Xuất</a>
+                        <li class="nav-item me-3 text-muted">
+                            Chào, <strong style="color: #2c3e50;">{{ session.get('name') }}</strong>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-outline-danger btn-sm rounded-pill px-3" href="{{ url_for('logout') }}">Đăng xuất</a>
+                        </li>
                     {% else %}
-                        <!-- Menu dành cho khách chưa đăng nhập -->
-                        <a class="btn btn-primary btn-sm fw-bold px-3" href="{{ url_for('login') }}">Đăng Nhập</a>
+                        <li class="nav-item">
+                            <a class="btn btn-sm rounded-pill px-4 text-white" style="background-color: #0f766e; border: none;" href="{{ url_for('login') }}">Đăng nhập</a>
+                        </li>
                     {% endif %}
-                </div>
+                </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Khu vực hiển thị thông báo Flash (Thông báo lỗi, thành công) -->
+    <div class="container mt-3">
         {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="container mt-3">
-            {% for message in messages %}
-              <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-              </div>
-            </div>
-            {% endfor %}
-          {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert" style="border-radius: 12px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.9); color: #0f766e;">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
         {% endwith %}
+    </div>
 
-    <!-- Nội dung của các trang con (home, manage, profile, login) sẽ chèn vào đây -->
-    {% block content %}
-    {% endblock %}
+    {% block content %}{% endblock %}
 
-    <!-- Bootstrap 5 JavaScript Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
