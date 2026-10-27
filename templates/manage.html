@@ -4,22 +4,49 @@
 <div class="container mt-4">
     <h2 class="text-center text-primary fw-bold mb-4">QUẢN LÝ SINH VIÊN</h2>
 
-    <!-- Form Thêm Sinh Viên -->
+    <!-- Form Thêm Sinh Viên Mới -->
     <div class="card mb-4 shadow-sm border-0">
         <div class="card-header bg-primary text-white fw-bold">Thêm Sinh Viên Mới</div>
         <div class="card-body">
             <form action="/add" method="POST" class="row g-3">
                 <div class="col-md-3">
-                    <input type="text" name="student_id" class="form-control" placeholder="Mã SV" required>
+                    <label class="form-label small fw-bold">Mã SV</label>
+                    <input type="text" name="student_id" class="form-control" placeholder="Ví dụ: B24DCCN001" required>
                 </div>
                 <div class="col-md-3">
-                    <input type="text" name="name" class="form-control" placeholder="Họ và Tên" required>
+                    <label class="form-label small fw-bold">Họ và Tên</label>
+                    <input type="text" name="name" class="form-control" placeholder="Ví dụ: Nguyễn Văn A" required>
                 </div>
                 <div class="col-md-3">
-                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                    <label class="form-label small fw-bold">Email</label>
+                    <input type="email" name="email" class="form-control" placeholder="nguyenvana@gmail.com" required>
                 </div>
                 <div class="col-md-3">
-                    <input type="text" name="major" class="form-control" placeholder="Ngành Học" required>
+                    <label class="form-label small fw-bold">Giới tính</label>
+                    <select name="gender" class="form-select">
+                        <option value="Nam">Nam</option>
+                        <option value="Nữ">Nữ</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Số CCCD</label>
+                    <input type="text" name="cccd" class="form-control" placeholder="001206xxxxxx" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Ngày sinh</label>
+                    <input type="text" name="birth" class="form-control" placeholder="01/01/2006" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Ngành Học</label>
+                    <input type="text" name="major" class="form-control" placeholder="CNTT" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Lớp</label>
+                    <input type="text" name="class" class="form-control" placeholder="D24CQCN04-B" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label small fw-bold">Địa chỉ</label>
+                    <input type="text" name="address" class="form-control" placeholder="Hà Nội" required>
                 </div>
                 <div class="col-12 text-end">
                     <button type="submit" class="btn btn-success fw-bold px-4">Thêm Sinh Viên</button>
@@ -42,6 +69,7 @@
                     <th>Mã SV</th>
                     <th>Họ Tên</th>
                     <th>Email</th>
+                    <th>Lớp</th>
                     <th>Ngành Học</th>
                     <th>Thao Tác</th>
                 </tr>
@@ -52,58 +80,85 @@
                     <td class="fw-bold text-center">{{ student['student_id'] }}</td>
                     <td>{{ student['name'] }}</td>
                     <td>{{ student['email'] }}</td>
+                    <td class="text-center">{{ student['class'] }}</td>
                     <td><span class="badge bg-secondary">{{ student['major'] }}</span></td>
                     <td class="text-center">
-                        <div class="d-inline-flex align-items-center">
-                            <button class="btn btn-warning btn-sm fw-bold me-1" data-bs-toggle="modal" data-bs-target="#editModal{{ student['id'] }}">Sửa</button>
+                        <div class="d-inline-flex align-items-center gap-1">
+                            <a href="{{ url_for('manage_student_grades', student_id=student['student_id']) }}" class="btn btn-info btn-sm text-white fw-bold">Điểm</a>
 
-                            <!-- Form Xóa qua phương thức POST -->
+                            <button class="btn btn-warning btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#editModal{{ student['id'] }}">Sửa</button>
+
                             <form action="/delete/{{ student['id'] }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa?')">
                                 <button type="submit" class="btn btn-danger btn-sm fw-bold">Xóa</button>
                             </form>
                         </div>
                     </td>
                 </tr>
-
-                <!-- Modal Sửa Thông Tin -->
-                <div class="modal fade" id="editModal{{ student['id'] }}" tabindex="-1">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <form action="/edit/{{ student['id'] }}" method="POST">
-                                <div class="modal-header">
-                                    <h5 class="modal-title fw-bold">Sửa Sinh Viên: {{ student['student_id'] }}</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="mb-3">
-                                        <label class="form-label">Họ và Tên</label>
-                                        <input type="text" name="name" class="form-control" value="{{ student['name'] }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" name="email" class="form-control" value="{{ student['email'] }}" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Ngành Học</label>
-                                        <input type="text" name="major" class="form-control" value="{{ student['major'] }}" required>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                    <button type="submit" class="btn btn-primary fw-bold">Lưu thay đổi</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
                 {% else %}
                 <tr>
-                    <td colspan="5" class="text-center text-muted py-3">Chưa có dữ liệu sinh viên.</td>
+                    <td colspan="6" class="text-center text-muted py-3">Chưa có dữ liệu sinh viên.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- Modal Sửa Thông Tin Sinh Viên -->
+    {% for student in students %}
+    <div class="modal fade" id="editModal{{ student['id'] }}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form action="/edit/{{ student['id'] }}" method="POST">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Sửa Sinh Viên: {{ student['student_id'] }}</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Họ và Tên</label>
+                            <input type="text" name="name" class="form-control" value="{{ student['name'] }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ student['email'] }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Giới tính</label>
+                            <select name="gender" class="form-select">
+                                <option value="Nam" {% if student['gender'] == 'Nam' %}selected{% endif %}>Nam</option>
+                                <option value="Nữ" {% if student['gender'] == 'Nữ' %}selected{% endif %}>Nữ</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Số CCCD</label>
+                            <input type="text" name="cccd" class="form-control" value="{{ student['CCCD'] }}" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Ngày sinh</label>
+                            <input type="text" name="birth" class="form-control" value="{{ student['birth'] }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Ngành Học</label>
+                            <input type="text" name="major" class="form-control" value="{{ student['major'] }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Lớp</label>
+                            <input type="text" name="class" class="form-control" value="{{ student['class'] }}" required>
+                        </div>
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold">Địa chỉ</label>
+                            <input type="text" name="address" class="form-control" value="{{ student['address'] }}" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-primary fw-bold">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 
     <!-- Phân trang -->
     {% if total_pages > 1 %}
