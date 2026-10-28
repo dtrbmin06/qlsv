@@ -91,6 +91,16 @@ def init_db():
             )
         ''')
 
+    conn.execute('''
+            CREATE TABLE IF NOT EXISTS attendance_records (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id TEXT NOT NULL,
+                date TEXT NOT NULL,
+                status TEXT NOT NULL,
+                FOREIGN KEY (student_id) REFERENCES students (student_id)
+            )
+        ''')
+
 
     advisor_pass = generate_password_hash('123456')
     student_pass = generate_password_hash('11111')

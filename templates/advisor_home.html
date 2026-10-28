@@ -32,7 +32,12 @@
                                     <h6 class="fw-bold mb-1" style="color: #2c3e50;">{{ w.name }}</h6>
                                     <small class="text-muted">{{ w.id }}</small>
                                 </div>
-                                <span class="badge bg-danger rounded-pill px-3 py-2">Nợ {{ w.failed_count }} môn</span>
+                                <div class="d-flex align-items-center">
+    <span class="badge bg-danger rounded-pill px-3 py-2 me-2">Nợ {{ w.failed_count }} môn</span>
+    <form action="{{ url_for('send_warning', student_id=w.id) }}" method="POST" class="m-0">
+        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Gửi cảnh báo">🔔</button>
+    </form>
+</div>
                             </div>
                         </div>
                     {% endfor %}
