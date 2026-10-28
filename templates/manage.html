@@ -42,7 +42,7 @@
                         <td><span class="badge rounded-pill" style="background-color: #d1ece5; color: #0f766e;">{{ student['class'] }}</span></td>
                         <td class="text-center">
                             <a href="{{ url_for('profile', id=student['student_id']) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 me-1 fw-medium">Hồ sơ</a>
-                            <a href="#" class="btn btn-sm text-white rounded-pill px-3 fw-medium" style="background-color: #0f766e;">Nhập điểm</a>
+                            <a href="{{ url_for('edit_grades', student_id=student['student_id']) }}" class="btn btn-sm text-white rounded-pill px-3 fw-medium" style="background-color: #0f766e;">Nhập điểm</a>
                         </td>
                     </tr>
                     {% else %}

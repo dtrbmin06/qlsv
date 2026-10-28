@@ -59,12 +59,18 @@
 
                 <div class="card elegant-card p-4 mt-4">
                     <h5 class="serif-text fw-bold mb-4">Tiến độ học tập</h5>
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-end mb-2">
-                            <span class="text-muted">Điểm TK (Hệ 10)</span>
-                            <strong class="fs-4" style="color: #0f766e;">{{ gpa }}</strong>
-                        </div>
+
+                    <div class="d-flex justify-content-between align-items-end mb-3 pb-3 border-bottom">
+                        <span class="text-muted">Điểm TK (Hệ 10)</span>
+                        <strong class="fs-4" style="color: #0f766e;">{{ gpa }}</strong>
                     </div>
+
+                    <!-- DÒNG MỚI THÊM VÀO -->
+                    <div class="d-flex justify-content-between align-items-end mb-4">
+                        <span class="text-muted">Điểm rèn luyện</span>
+                        <strong class="fs-4" style="color: #d97706;">{{ user['training_score'] }} <small class="fs-6 text-muted">/100</small></strong>
+                    </div>
+
                     <div>
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Tín chỉ tích lũy</span>

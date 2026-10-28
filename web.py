@@ -19,33 +19,30 @@ def get_db_connection():
 def init_db():
     conn = get_db_connection()
 
-
     conn.execute('''
-        CREATE TABLE IF NOT EXISTS students (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            student_id TEXT NOT NULL UNIQUE,
-            password text,
-
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
-            gender TEXT NOT NULL,
-            CCCD text not null,
-            address text not null,
-            birth text not null,
-            religion text,
-            ethnic_group text,
-
-            major TEXT NOT NULL,
-            faculty text,
-            cohort text,
-            academic_year text,
-            status text DEFAULT 'Đang học',
-            class text not null,
-
-            advisor_id text,
-            Foreign key (advisor_id) references advisors (advisor_id)
-        )
-    ''')
+            CREATE TABLE IF NOT EXISTS students (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id TEXT NOT NULL UNIQUE,
+                password text,
+                name TEXT NOT NULL,
+                email TEXT NOT NULL,
+                gender TEXT NOT NULL,
+                CCCD text not null,
+                address text not null,
+                birth text not null,
+                religion text,
+                ethnic_group text,
+                major TEXT NOT NULL,
+                faculty text,
+                cohort text,
+                academic_year text,
+                status text DEFAULT 'Đang học',
+                class text not null,
+                advisor_id text,
+                training_score INTEGER DEFAULT 0,
+                Foreign key (advisor_id) references advisors (advisor_id)
+            )
+        ''')
 
 
     conn.execute('''
@@ -71,37 +68,48 @@ def init_db():
               )
         ''')
 
+    conn.execute('''
+        CREATE Table if not exists advisors(
+              id Integer primary key autoincrement,
+              advisor_id text not null unique,
+              password text,
+              name text not null,
+              email text not null,
+              sdt text not null,
+              subject_id text
+              )
+        ''')
 
     conn.execute('''
-    CREATE Table if not exists advisors(
-          id Integer primary key autoincrement,
-          advisor_id text not null unique,
-          password text,
-          name text not null,
-          email text not null,
-          sdt text not null
-          )
-    ''')
+            CREATE TABLE if not exists notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                student_id TEXT NOT NULL,
+                message TEXT NOT NULL,
+                is_read INTEGER DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (student_id) REFERENCES students (student_id)
+            )
+        ''')
 
 
     advisor_pass = generate_password_hash('123456')
     student_pass = generate_password_hash('11111')
 
     conn.execute('''
-            INSERT OR IGNORE INTO advisors (advisor_id, password, name, email, sdt) 
-            VALUES ('KCN101000', ?, 'Nguyễn Quang Hưng', 'hungnq1@ptit.edu.vn', '0949790117')
-        ''', (advisor_pass,))
+                INSERT OR IGNORE INTO advisors (advisor_id, password, name, email, sdt, subject_id) 
+                VALUES ('KCN101000', ?, 'Nguyễn Quang Hưng', 'hungnq1@ptit.edu.vn', '0949790117', 'INT1154')
+            ''', (advisor_pass,))
 
     conn.execute('''
-            INSERT OR IGNORE INTO students(
-                student_id, name, email, gender, CCCD, address, birth, religion, ethnic_group, 
-                major, faculty, cohort, academic_year, status, class, advisor_id, password
-            ) VALUES(
-                'B24DCCN422', 'Nguyễn Trọng Nghĩa', 'nghiapro130206@gmail.com', 'Nam', '001206123456', 
-                'Hà Nội', '13/02/2006', 'Không', 'Kinh', 
-                'CNTT', 'Công nghệ thông tin 1', 'Đại học chính quy', '2024-2029', 'Đang học', 'D24CQCN04-B', 'KCN101000', ?
-            )
-        ''', (student_pass,))
+                INSERT OR IGNORE INTO students(
+                    student_id, name, email, gender, CCCD, address, birth, religion, ethnic_group, 
+                    major, faculty, cohort, academic_year, status, class, advisor_id, password, training_score
+                ) VALUES(
+                    'B24DCCN422', 'Nguyễn Trọng Nghĩa', 'nghiapro130206@gmail.com', 'Nam', '001206123456', 
+                    'Hà Nội', '13/02/2006', 'Không', 'Kinh', 
+                    'CNTT', 'Công nghệ thông tin 1', 'Đại học chính quy', '2024-2029', 'Đang học', 'D24CQCN04-B', 'KCN101000', ?, 85
+                )
+            ''', (student_pass,))
 
 
     conn.executescript('''
@@ -435,6 +443,12 @@ def profile():
         conn.close()
         return redirect(url_for('index'))
 
+    notifications = []
+    unread_count = 0
+    if session.get('role') == 'student':
+        notifications = conn.execute('SELECT * FROM notifications WHERE student_id = ? ORDER BY id DESC',(target_id,)).fetchall()
+        unread_count = len([n for n in notifications if n['is_read'] == 0])
+
     grades = conn.execute('''
     select s.subject_id,s.subject_name,s.credits,g.id,g.attendance_score,g.midterm_score,g.final_score
     from subjects s
@@ -460,6 +474,8 @@ def profile():
     if user['advisor_id']:
         advisor = conn.execute('Select * from advisors where advisor_id=?', (user['advisor_id'],)).fetchone()
 
+
+
     conn.close()
 
     if session.get('role') != 'advisor' and user['student_id'] == session.get('student_id'):
@@ -471,8 +487,7 @@ def profile():
     else:
         avatar_path = f"https://ui-avatars.com/api/?name={user['name']}&background=d1ece5&color=0f766e&size=150"
 
-    return render_template('profile.html', user=user, grades=grades, advisor=advisor, chart_data=chart_data,
-                           chart_labels=chart_labels, gpa=gpa, total_credits=total_credits, avatar_path=avatar_path)
+    return render_template('profile.html', user=user, grades=grades, advisor=advisor, chart_data=chart_data,  chart_labels=chart_labels, gpa=gpa, total_credits=total_credits, avatar_path=avatar_path,notifications=notifications, unread_count=unread_count)
 
 
 
@@ -485,6 +500,12 @@ def edit_grades(student_id):
     conn = get_db_connection()
 
     if request.method == 'POST':
+        # Lưu điểm rèn luyện
+        t_score = request.form.get('training_score')
+        if t_score:
+            conn.execute('UPDATE students SET training_score = ? WHERE student_id = ?', (t_score, student_id))
+
+        # Lưu điểm các môn
         for key in request.form:
             if key.startswith('attendance_'):
                 subj_id = key.split('_')[1]
@@ -499,7 +520,7 @@ def edit_grades(student_id):
                 ''', (att, mid, fin, student_id, subj_id))
         conn.commit()
         conn.close()
-        flash("Cập nhật điểm thành công!")
+        flash("Cập nhật điểm số và điểm rèn luyện thành công!")
         return redirect(url_for('manage'))
 
     student = conn.execute('SELECT * FROM students WHERE student_id = ? AND advisor_id = ?',
@@ -526,6 +547,34 @@ def logout():
     session.clear()
     flash("Bạn đã đăng xuất khỏi hệ thống.")
     return redirect(url_for('login'))
+
+
+@app.route('/send_warning/<student_id>', methods=['POST'])
+def send_warning(student_id):
+    if session.get('role') != 'advisor':
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    message = f"CẢNH BÁO HỌC VỤ: Kế quả học tập của bạn đang ở mức nguy hiểm. Đề nghị liên hệ ngay với Cố vấn học tập (Thầy {session.get('name')}) để được hỗ trợ!"
+    conn.execute('INSERT INTO notifications (student_id, message) VALUES (?, ?)', (student_id, message))
+    conn.commit()
+    conn.close()
+
+    flash("Đã gửi cảnh báo học vụ tới sinh viên!")
+    return redirect(url_for('advisor_home'))
+
+
+@app.route('/read_notifications', methods=['POST'])
+def read_notifications():
+    if 'student_id' not in session:
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+    conn.execute('UPDATE notifications SET is_read = 1 WHERE student_id = ?', (session['student_id'],))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('profile'))
+
 
 
 if __name__ == '__main__':
