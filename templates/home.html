@@ -24,6 +24,9 @@
                         <small class="text-muted">Xem lý lịch & điểm số</small>
                     </div>
                 </a>
+
+                <!-- CHỈ SINH VIÊN MỚI THẤY NÚT ĐĂNG KÝ MÔN HỌC -->
+                {% if session.get('role') != 'admin' %}
                 <a href="#" class="list-group-item list-group-item-action p-3 d-flex align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);" onclick="alert('Tính năng đang xây dựng!');">
                     <div class="rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 45px; height: 45px; background-color: #fef08a; color: #ca8a04;">
                         📝
@@ -33,10 +36,24 @@
                         <small class="text-muted">Học kỳ 1 (2026-2027)</small>
                     </div>
                 </a>
+                {% endif %}
+
+                <!-- CHỈ ADMIN MỚI THẤY NÚT QUẢN LÝ SINH VIÊN -->
+                {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('manage') }}" class="list-group-item list-group-item-action p-3 d-flex align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);">
+                    <div class="rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 45px; height: 45px; background-color: #dbefe6; color: #0f766e;">
+                        ⚙️
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark">Quản lý Sinh viên</h6>
+                        <small class="text-muted">Thêm/Sửa/Xóa sinh viên</small>
+                    </div>
+                </a>
+                {% endif %}
             </div>
         </div>
 
-        <!-- CỘT PHẢI: BẢNG TIN TỨC ĐƯỢC FIX CỨNG -->
+        <!-- CỘT PHẢI: BẢNG TIN TỨC -->
         <div class="col-lg-8 mb-4">
             <h5 class="serif-text fw-bold mb-3" style="color: #2c3e50;">Thông báo từ nhà trường</h5>
 

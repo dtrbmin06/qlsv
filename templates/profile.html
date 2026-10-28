@@ -29,7 +29,7 @@
 <div class="profile-wrapper">
     <div class="container px-lg-5">
         <div class="text-center mb-5">
-            <h2 class="serif-text fw-bold">Thông tin Sinh viên</h2>
+            <h2 class="serif-text fw-bold">Thông tin {{ 'Cán bộ' if user['role'] == 'admin' else 'Sinh viên' }}</h2>
         </div>
 
         <div class="row">
@@ -38,23 +38,32 @@
 
                 <div class="card elegant-card p-4 text-center">
                     <div class="position-relative d-inline-block mx-auto mb-4 mt-3">
-                        <img src="https://ui-avatars.com/api/?name={{user['name']}}&background=d1ece5&color=0f766e&size=150"
-                             class="rounded-circle border border-white border-4 shadow-sm"
-                             style="width: 150px; height: 150px; object-fit: cover;">
+                        {% if user['avatar'] %}
+                            <img src="{{ user['avatar'] }}" class="rounded-circle border border-white border-4 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{user['name']}}&background=d1ece5&color=0f766e&size=150" class="rounded-circle border border-white border-4 shadow-sm" style="width: 150px; height: 150px; object-fit: cover;">
+                        {% endif %}
 
                         <button class="btn btn-light rounded-circle position-absolute bottom-0 end-0 shadow border"
                                 style="width: 40px; height: 40px; transform: translate(10%, 10%);"
-                                title="Đổi ảnh đại diện">
+                                data-bs-toggle="modal" data-bs-target="#avatarModal" title="Đổi ảnh đại diện">
                             📷
                         </button>
                     </div>
 
                     <h3 class="serif-text fw-bold">{{user['name']}}</h3>
-                    <p class="text-muted mb-3">Mã SV: <strong>{{user['student_id']}}</strong></p>
+                    <p class="text-muted mb-3">Mã số: <strong>{{user['student_id']}}</strong></p>
 
-                    <a href="{{url_for('logout')}}" class="btn btn-outline-danger rounded-pill w-100">Đăng xuất</a>
+                    <div class="d-grid gap-2">
+                        <!-- NÚT ĐỔI MẬT KHẨU ĐÃ BỎ NỀN VÀNG (SỬ DỤNG DẠNG OUTLINE KHÔNG NỀN) -->
+                        <button class="btn btn-outline-secondary rounded-pill fw-medium" data-bs-toggle="modal" data-bs-target="#changePassModal">
+                            🔑 Đổi mật khẩu
+                        </button>
+                        <a href="{{url_for('logout')}}" class="btn btn-outline-danger rounded-pill">Đăng xuất</a>
+                    </div>
                 </div>
 
+                {% if user['role'] != 'admin' %}
                 <div class="card elegant-card p-4 mt-4">
                     <h5 class="serif-text fw-bold mb-4">Tiến độ học tập</h5>
 
@@ -75,6 +84,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
 
             <div class="col-lg-8">
@@ -128,57 +138,58 @@
                 </div>
 
                 <div class="card elegant-card p-4 mb-4">
-                    <h4 class="serif-text fw-bold mb-4">Thông tin khóa học</h4>
+                    <h4 class="serif-text fw-bold mb-4">Thông tin đơn vị / Khóa học</h4>
                     <ul class="list-group list-group-flush bg-transparent">
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
-                            <span class="text-muted">Lớp:</span>
+                            <span class="text-muted">Lớp / Phòng ban:</span>
                             <strong class="text-end">{{user['class']}}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
-                            <span class="text-muted">Ngành:</span>
+                            <span class="text-muted">Ngành / Chức năng:</span>
                             <strong class="text-end">{{user['major']}}</strong>
                         </li>
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
-                            <span class="text-muted">Khoa:</span>
+                            <span class="text-muted">Khoa / Đơn vị:</span>
                             <strong class="text-end">{{user['faculty']}}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
-                            <span class="text-muted">Hệ đào tạo:</span>
-                            <strong class="text-end">{{user['cohort']}}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0 border-0">
-                            <span class="text-muted">Niên khóa:</span>
-                            <strong class="text-end">{{user['academic_year']}}</strong>
                         </li>
                     </ul>
                 </div>
 
+                {% if user['role'] != 'admin' %}
                 <div class="card elegant-card p-4 mb-4">
-                    <h4 class="serif-text fw-bold mb-4">Cố vấn học tập </h4>
-                    <ul class="list-group list-group-flush bg-transparent">
-                        {% if advisor %}
-                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
-                            <span class="text-muted">Tài khoản:</span>
-                            <strong class="text-end">{{advisor['advisor_id']}}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
-                            <span class="text-muted">Họ tên:</span>
-                            <strong class="text-end">{{advisor['name']}}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
-                            <span class="text-muted">Email:</span>
-                            <strong class="text-end">{{advisor['email']}}</strong>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0 border-0">
-                            <span class="text-muted">Điện thoại:</span>
-                            <strong class="text-end">{{advisor['sdt']}}</strong>
-                        </li>
-                        {% else %}
-                        <li class="list-group-item bg-transparent px-0 border-0 text-center">
-                            <span class="text-danger fst-italic">Chưa phân công</span>
-                        </li>
-                        {% endif %}
-                    </ul>
+                    <h4 class="serif-text fw-bold mb-4">Chi tiết bảng điểm</h4>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle bg-white rounded-3 overflow-hidden shadow-sm">
+                            <thead class="table-light text-center">
+                                <tr>
+                                    <th>Mã môn</th>
+                                    <th>Tên môn học</th>
+                                    <th>Số TC</th>
+                                    <th>CC (10%)</th>
+                                    <th>GK (20%)</th>
+                                    <th>CK (70%)</th>
+                                    <th>Tổng kết</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for g in grades %}
+                                <tr>
+                                    <td class="fw-bold text-center">{{ g['subject_id'] }}</td>
+                                    <td>{{ g['subject_name'] }}</td>
+                                    <td class="text-center">{{ g['credits'] }}</td>
+                                    <td class="text-center">{{ g['attendance_score'] }}</td>
+                                    <td class="text-center">{{ g['midterm_score'] }}</td>
+                                    <td class="text-center">{{ g['final_score'] }}</td>
+                                    <td class="text-center fw-bold text-success">{{ g['total_score'] }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Chưa có dữ liệu điểm môn học.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="card elegant-card p-4 mb-4">
@@ -187,12 +198,70 @@
                         <canvas id="gradeChart"></canvas>
                     </div>
                 </div>
+                {% endif %}
 
             </div>
         </div>
     </div>
 </div>
 
+<!-- MODAL ĐỔI MẬT KHẨU -->
+<div class="modal fade" id="changePassModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('change_password') }}" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">🔑 Đổi mật khẩu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu hiện tại</label>
+                        <input type="password" name="old_password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Mật khẩu mới</label>
+                        <input type="password" name="new_password" class="form-control" minlength="6" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Xác nhận mật khẩu mới</label>
+                        <input type="password" name="confirm_password" class="form-control" minlength="6" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Lưu thay đổi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ĐỔI ẢNH ĐẠI DIỆN -->
+<div class="modal fade" id="avatarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('upload_avatar') }}" method="POST" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">📷 Cập nhật Ảnh Đại Diện</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Chọn ảnh mới (png, jpg, jpeg, gif)</label>
+                        <input type="file" name="avatar" class="form-control" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Tải lên</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if user['role'] != 'admin' %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const labels = {{ chart_labels | tojson }};
@@ -230,4 +299,5 @@ new Chart(ctx, {
     }
 });
 </script>
+{% endif %}
 {% endblock %}
