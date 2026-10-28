@@ -58,17 +58,18 @@ def init_db():
     ''')
 
     conn.execute('''
-    CREATE TABLE if not exists grades(
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          student_id TEXT NOT NULL,
-          subject_id TEXT NOT NULL,
-          attendance_score  FLOAT,
-          midterm_score FLOAT,
-          final_score float,
-          FOREIGN KEY (student_id) REFERENCES students (student_id),
-          FOREIGN KEY (subject_id) REFERENCES subjects (subject_id)
-          )
-    ''')
+        CREATE TABLE if not exists grades(
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              student_id TEXT NOT NULL,
+              subject_id TEXT NOT NULL,
+              attendance_score  FLOAT,
+              midterm_score FLOAT,
+              final_score float,
+              FOREIGN KEY (student_id) REFERENCES students (student_id),
+              FOREIGN KEY (subject_id) REFERENCES subjects (subject_id),
+              UNIQUE(student_id, subject_id)
+              )
+        ''')
 
 
     conn.execute('''
@@ -111,11 +112,11 @@ def init_db():
         ''')
 
     conn.executescript('''
-            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1154', 10.0, 8.5, 9.0);
-            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1339', 9.0, 7.5, 8.0);
-            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1340', 10.0, 9.0, 8.5);
-            INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'BAS1203', 8.0, 6.5, 7.0);
-        ''')
+                INSERT OR IGNORE INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1154', 10.0, 8.5, 9.0);
+                INSERT OR IGNORE INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1339', 9.0, 7.5, 8.0);
+                INSERT OR IGNORE INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1340', 10.0, 9.0, 8.5);
+                INSERT OR IGNORE INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'BAS1203', 8.0, 6.5, 7.0);
+            ''')
 
     conn.commit()
     conn.close()
@@ -335,10 +336,34 @@ def advisor_home():
 
     advisor_id = session['student_id']
     conn = get_db_connection()
+
     total_students = conn.execute("SELECT COUNT(*) FROM students WHERE advisor_id = ?", (advisor_id,)).fetchone()[0]
+    students = conn.execute("SELECT student_id, name FROM students WHERE advisor_id = ?", (advisor_id,)).fetchall()
+
+    warning_students = []
+    for s in students:
+        grades = conn.execute("SELECT attendance_score, midterm_score, final_score FROM grades WHERE student_id = ?",
+                              (s['student_id'],)).fetchall()
+
+        if grades:
+            failed_subjects = 0
+            for g in grades:
+                tong_ket = round(g['attendance_score'] * 0.1 + g['midterm_score'] * 0.2 + g['final_score'] * 0.7, 1)
+                if tong_ket < 4.0:
+                    failed_subjects += 1
+
+            if failed_subjects > 0:
+                warning_students.append({
+                    'id': s['student_id'],
+                    'name': s['name'],
+                    'failed_count': failed_subjects
+                })
+
     conn.close()
 
-    return render_template('advisor_home.html', total_students=total_students)
+    return render_template('advisor_home.html', total_students=total_students, warning_students=warning_students)
+
+
 
 
 @app.route('/profile')
@@ -392,6 +417,8 @@ def profile():
         session['name'] = user['name']
 
     return render_template('profile.html', user=user, grades=grades, advisor=advisor, chart_data=chart_data, chart_labels=chart_labels, gpa=gpa, total_credits=total_credits)
+
+
 
 
 @app.route('/edit_grades/<student_id>', methods=['GET', 'POST'])
