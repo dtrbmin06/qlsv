@@ -94,6 +94,64 @@
                         </div>
                     </td>
                 </tr>
+<<<<<<< HEAD
+
+                <!-- Modal Sửa Thông Tin -->
+                <div class="modal fade" id="editModal{{ student['id'] }}" tabindex="-1">
+                    <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                            <form action="/edit/{{ student['id'] }}" method="POST">
+                                <div class="modal-header">
+                                    <h5 class="modal-title fw-bold">Sửa Sinh Viên: {{ student['student_id'] }}</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Họ và Tên</label>
+                                        <input type="text" name="name" class="form-control" value="{{ student['name'] }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Email</label>
+                                        <input type="email" name="email" class="form-control" value="{{ student['email'] }}" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Giới tính</label>
+                                        <select name="gender" class="form-select">
+                                            <option value="Nam" {% if student['gender'] == 'Nam' %}selected{% endif %}>Nam</option>
+                                            <option value="Nữ" {% if student['gender'] == 'Nữ' %}selected{% endif %}>Nữ</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Số CCCD</label>
+                                        <input type="text" name="cccd" class="form-control" value="{{ student['CCCD'] }}" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Ngày sinh</label>
+                                        <input type="text" name="birth" class="form-control" value="{{ student['birth'] }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Ngành Học</label>
+                                        <input type="text" name="major" class="form-control" value="{{ student['major'] }}" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-bold">Lớp</label>
+                                        <input type="text" name="class" class="form-control" value="{{ student['class'] }}" required>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <label class="form-label fw-bold">Địa chỉ</label>
+                                        <input type="text" name="address" class="form-control" value="{{ student['address'] }}" required>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                    <button type="submit" class="btn btn-primary fw-bold">Lưu thay đổi</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+=======
+>>>>>>> 26bdbb9 (sửa tí)
                 {% else %}
                 <tr>
                     <td colspan="6" class="text-center text-muted py-3">Chưa có dữ liệu sinh viên.</td>
