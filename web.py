@@ -18,13 +18,14 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
+
+
     conn.execute('''
         CREATE TABLE IF NOT EXISTS students (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             student_id TEXT NOT NULL UNIQUE,
             password text,
-            role text default 'student',
-            
+
             name TEXT NOT NULL,
             email TEXT NOT NULL,
             gender TEXT NOT NULL,
@@ -33,18 +34,19 @@ def init_db():
             birth text not null,
             religion text,
             ethnic_group text,
-            
+
             major TEXT NOT NULL,
             faculty text,
             cohort text,
             academic_year text,
             status text DEFAULT 'Đang học',
             class text not null,
-            
+
             advisor_id text,
             Foreign key (advisor_id) references advisors (advisor_id)
         )
     ''')
+
 
     conn.execute('''
     CREATE TABLE if not exists subjects (
@@ -53,8 +55,7 @@ def init_db():
         subject_name TEXT NOT NULL,
         credits INTEGER NOT NULL 
         )
-    '''
-    )
+    ''')
 
     conn.execute('''
     CREATE TABLE if not exists grades(
@@ -69,10 +70,12 @@ def init_db():
           )
     ''')
 
+
     conn.execute('''
     CREATE Table if not exists advisors(
           id Integer primary key autoincrement,
           advisor_id text not null unique,
+          password text,
           name text not null,
           email text not null,
           sdt text not null
@@ -80,30 +83,22 @@ def init_db():
     ''')
 
 
-    conn.execute('''
-            INSERT OR IGNORE INTO advisors (advisor_id, name, email, sdt) 
-            VALUES ('KCN101000', 'Nguyễn Quang Hưng', 'hungnq1@ptit.edu.vn', '0949790117')
-        ''')
-
-    admin_pass = generate_password_hash('123456')
+    advisor_pass = generate_password_hash('123456')
     student_pass = generate_password_hash('11111')
 
-
     conn.execute('''
-            INSERT OR IGNORE INTO students(student_id, name, email, gender, CCCD, address, birth, major, class, password, role) 
-            VALUES('admin', 'Quản trị viên', 'admin@ptit.edu.vn', 'Nam', '000000000', 'Hà Nội', '01/01/1990', 'Admin', 'Admin', ?, 'admin')
-        ''', (admin_pass,))
-
-
+            INSERT OR IGNORE INTO advisors (advisor_id, password, name, email, sdt) 
+            VALUES ('KCN101000', ?, 'Nguyễn Quang Hưng', 'hungnq1@ptit.edu.vn', '0949790117')
+        ''', (advisor_pass,))
 
     conn.execute('''
             INSERT OR IGNORE INTO students(
                 student_id, name, email, gender, CCCD, address, birth, religion, ethnic_group, 
-                major, faculty, cohort, academic_year, status, class, advisor_id, password, role
+                major, faculty, cohort, academic_year, status, class, advisor_id, password
             ) VALUES(
                 'B24DCCN422', 'Nguyễn Trọng Nghĩa', 'nghiapro130206@gmail.com', 'Nam', '001206123456', 
                 'Hà Nội', '13/02/2006', 'Không', 'Kinh', 
-                'CNTT', 'Công nghệ thông tin 1', 'Đại học chính quy', '2024-2029', 'Đang học', 'D24CQCN04-B', 'KCN101000', ?, 'student'
+                'CNTT', 'Công nghệ thông tin 1', 'Đại học chính quy', '2024-2029', 'Đang học', 'D24CQCN04-B', 'KCN101000', ?
             )
         ''', (student_pass,))
 
@@ -114,7 +109,6 @@ def init_db():
             INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('INT1340', 'Cơ sở dữ liệu', 3);
             INSERT OR IGNORE INTO subjects (subject_id, subject_name, credits) VALUES ('BAS1203', 'Giải tích 1', 3);
         ''')
-
 
     conn.executescript('''
             INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score) VALUES ('B24DCCN422', 'INT1154', 10.0, 8.5, 9.0);
@@ -140,7 +134,7 @@ def index():
     if 'student_id' not in session:
         return redirect(url_for('login'))
 
-    if is_admin():
+    if session.get('role') == 'advisor':
         return redirect(url_for('manage'))
 
     return render_template('home.html')
@@ -151,36 +145,41 @@ def manage():
     if 'student_id' not in session:
         return redirect(url_for('login'))
 
-    if not is_admin():
+    if session.get('role') != 'advisor':
         flash("Bạn không có quyền truy cập trang quản trị!")
         return redirect(url_for('profile'))
 
+    advisor_id = session['student_id']
     search_query = request.args.get('search', '').strip()
     page = request.args.get('page', 1, type=int)
     offset = (page - 1) * STUDENTS_PER_PAGE
 
     conn = get_db_connection()
+
+    total_students = conn.execute("SELECT COUNT(*) FROM students WHERE advisor_id = ?", (advisor_id,)).fetchone()[0]
+
     if search_query:
-        total_count = conn.execute(
-            "SELECT COUNT(*) FROM students WHERE name LIKE ? OR student_id LIKE ?",
-            (f'%{search_query}%', f'%{search_query}%')
+        query_count = conn.execute(
+            "SELECT COUNT(*) FROM students WHERE advisor_id = ? AND (name LIKE ? OR student_id LIKE ?)",
+            (advisor_id, f'%{search_query}%', f'%{search_query}%')
         ).fetchone()[0]
 
         students = conn.execute(
-            "SELECT * FROM students WHERE name LIKE ? OR student_id LIKE ? LIMIT ? OFFSET ?",
-            (f'%{search_query}%', f'%{search_query}%', STUDENTS_PER_PAGE, offset)
+            "SELECT * FROM students WHERE advisor_id = ? AND (name LIKE ? OR student_id LIKE ?) LIMIT ? OFFSET ?",
+            (advisor_id, f'%{search_query}%', f'%{search_query}%', STUDENTS_PER_PAGE, offset)
         ).fetchall()
     else:
-        total_count = conn.execute("SELECT COUNT(*) FROM students").fetchone()[0]
+        query_count = total_students
         students = conn.execute(
-            "SELECT * FROM students LIMIT ? OFFSET ?", (STUDENTS_PER_PAGE, offset)
+            "SELECT * FROM students WHERE advisor_id = ? LIMIT ? OFFSET ?",
+            (advisor_id, STUDENTS_PER_PAGE, offset)
         ).fetchall()
 
     conn.close()
-    total_pages = math.ceil(total_count / STUDENTS_PER_PAGE) if total_count > 0 else 1
+    total_pages = math.ceil(query_count / STUDENTS_PER_PAGE) if query_count > 0 else 1
 
     return render_template('manage.html', students=students, search_query=search_query,
-      page=page, total_pages=total_pages)
+                           page=page, total_pages=total_pages, total_students=total_students)
 
 
 @app.route('/add', methods=['POST'])
@@ -304,23 +303,29 @@ def login():
         mk = request.form['password']
 
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM students WHERE student_id = ?', (tai_khoan,)).fetchone()
-        conn.close()
 
-        # Chỉ sử dụng check_password_hash
+
+        user = conn.execute('SELECT * FROM students WHERE student_id = ?', (tai_khoan,)).fetchone()
+
         if user and check_password_hash(user['password'], mk):
             session['student_id'] = user['student_id']
             session['name'] = user['name']
-            session['role'] = user['role']
-            session['major'] = user['major']
-            session['email'] = user['email']
+            session['role'] = 'student'
+            conn.close()
+            return redirect(url_for('index'))
 
-            if session['role'] == 'admin':
-                return redirect(url_for('manage'))
-            else:
-                return redirect(url_for('index'))
-        else:
-            flash("Sai tài khoản hoặc mật khẩu!")
+
+        advisor = conn.execute('SELECT * FROM advisors WHERE advisor_id = ?', (tai_khoan,)).fetchone()
+
+        if advisor and check_password_hash(advisor['password'], mk):
+            session['student_id'] = advisor['advisor_id']
+            session['name'] = advisor['name']
+            session['role'] = 'advisor'
+            conn.close()
+            return redirect(url_for('manage'))
+
+        conn.close()
+        flash("Sai tài khoản hoặc mật khẩu!")
 
     return render_template('login.html')
 
@@ -330,49 +335,52 @@ def profile():
     if 'student_id' not in session:
         return redirect(url_for('login'))
 
-    conn = get_db_connection()
-    user = conn.execute('SELECT * FROM students WHERE student_id = ?', (session['student_id'],)).fetchone()
+    target_id = request.args.get('id')
 
-    grades=conn.execute('''
+    if session.get('role') == 'advisor':
+        if not target_id:
+            return redirect(url_for('manage'))
+    else:
+        target_id = session['student_id']
+
+    conn = get_db_connection()
+    user = conn.execute('SELECT * FROM students WHERE student_id = ?', (target_id,)).fetchone()
+
+    if not user:
+        conn.close()
+        return redirect(url_for('index'))
+
+    grades = conn.execute('''
     select s.subject_id,s.subject_name,s.credits,g.id,g.attendance_score,g.midterm_score,g.final_score
     from subjects s
     join grades g on g.subject_id=s.subject_id
     where g.student_id=?
-    ''',(session['student_id'],)).fetchall()
+    ''',(target_id,)).fetchall()
 
     chart_labels=[]
     chart_data=[]
-
-    for g in grades:
-        chart_labels.append(g['subject_id'])
-        sum=round(g['attendance_score']*0.1+g['midterm_score']*0.2+g['final_score']*0.7,1)
-        chart_data.append(sum)
-
-    advisor=None
-
-    if user and user['advisor_id']:
-        advisor=conn.execute('Select * from advisors where advisor_id=?',(user['advisor_id'],)).fetchone()
-
-#Tinh gpa va so tin chi.
     total_credits = 0
     total_score = 0
 
     for g in grades:
-        tong_ket = round(g['attendance_score'] * 0.1 + g['midterm_score'] * 0.2 + g['final_score'] * 0.7, 1)
+        chart_labels.append(g['subject_id'])
+        tong_ket = round(g['attendance_score']*0.1+g['midterm_score']*0.2+g['final_score']*0.7,1)
+        chart_data.append(tong_ket)
         total_credits += g['credits']
         total_score += (tong_ket * g['credits'])
 
     gpa = round(total_score / total_credits, 2) if total_credits > 0 else 0.0
 
+    advisor = None
+    if user['advisor_id']:
+        advisor = conn.execute('Select * from advisors where advisor_id=?',(user['advisor_id'],)).fetchone()
 
     conn.close()
 
-    # Cập nhật lại session name phòng trường hợp đã bị sửa
-    if user:
+    if session.get('role') != 'advisor' and user['student_id'] == session.get('student_id'):
         session['name'] = user['name']
 
-    return render_template('profile.html', user=user,grades=grades,advisor=advisor,chart_data=chart_data,chart_labels=chart_labels,gpa=gpa,total_credits=total_credits)
-
+    return render_template('profile.html', user=user, grades=grades, advisor=advisor, chart_data=chart_data, chart_labels=chart_labels, gpa=gpa, total_credits=total_credits)
 
 
 

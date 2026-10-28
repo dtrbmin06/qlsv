@@ -54,18 +54,17 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     {% if session.get('student_id') %}
-                        {% if session.get('role') == 'admin' %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link" href="{{ url_for('manage') }}">Quản lý SV</a>
-                            </li>
+                        {% if session.get('role') == 'advisor' %}
+                        <li class="nav-item me-3">
+                            <a class="nav-link" href="{{ url_for('manage') }}">Lớp Quản Lý</a>
+                        </li>
                         {% else %}
-                            <li class="nav-item me-3">
-                                <a class="nav-link" href="{{ url_for('index') }}">Trang chủ</a>
-                            </li>
-
-                            <li class="nav-item me-3">
-                                <a class="nav-link" href="{{ url_for('profile') }}">Hồ sơ</a>
-                            </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link" href="{{ url_for('index') }}">Trang chủ</a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link" href="{{ url_for('profile') }}">Hồ sơ</a>
+                        </li>
                         {% endif %}
                         <li class="nav-item me-3 text-muted">
                             Chào, <strong style="color: #2c3e50;">{{ session.get('name') }}</strong>
