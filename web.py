@@ -9,7 +9,6 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'qlsv_secret_key_2026_default')
 STUDENTS_PER_PAGE = 5
 
-# Cấu hình thư mục Upload Avatar
 UPLOAD_FOLDER = os.path.join('static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -58,7 +57,6 @@ def init_db():
         )
     ''')
 
-    # Tự động nâng cấp bảng nếu thiếu cột avatar
     try:
         conn.execute("ALTER TABLE students ADD COLUMN avatar text")
     except sqlite3.OperationalError:
@@ -303,60 +301,6 @@ def delete_student(id):
     return redirect(url_for('manage'))
 
 
-@app.route('/grades/manage/<student_id>', methods=['GET', 'POST'])
-def manage_student_grades(student_id):
-    if not is_admin():
-        flash("Bạn không có quyền nhập điểm!")
-        return redirect(url_for('index'))
-
-    conn = get_db_connection()
-    student = conn.execute('SELECT * FROM students WHERE student_id = ?', (student_id,)).fetchone()
-
-    if not student:
-        flash("Không tìm thấy sinh viên!")
-        conn.close()
-        return redirect(url_for('manage'))
-
-    if request.method == 'POST':
-        subjects = conn.execute('SELECT subject_id FROM subjects').fetchall()
-        for sub in subjects:
-            sid = sub['subject_id']
-            att = float(request.form.get(f'att_{sid}', 0.0))
-            mid = float(request.form.get(f'mid_{sid}', 0.0))
-            fin = float(request.form.get(f'fin_{sid}', 0.0))
-
-            existing = conn.execute(
-                'SELECT id FROM grades WHERE student_id = ? AND subject_id = ?',
-                (student_id, sid)
-            ).fetchone()
-
-            if existing:
-                conn.execute('''
-                    UPDATE grades 
-                    SET attendance_score = ?, midterm_score = ?, final_score = ?
-                    WHERE student_id = ? AND subject_id = ?
-                ''', (att, mid, fin, student_id, sid))
-            else:
-                conn.execute('''
-                    INSERT INTO grades (student_id, subject_id, attendance_score, midterm_score, final_score)
-                    VALUES (?, ?, ?, ?, ?)
-                ''', (student_id, sid, att, mid, fin))
-
-        conn.commit()
-        flash(f"Cập nhật bảng điểm thành công cho sinh viên: {student['name']}")
-
-    grades = conn.execute('''
-        SELECT s.subject_id, s.subject_name, s.credits, 
-               g.attendance_score, g.midterm_score, g.final_score
-        FROM subjects s
-        LEFT JOIN grades g ON s.subject_id = g.subject_id AND g.student_id = ?
-    ''', (student_id,)).fetchall()
-
-    conn.close()
-    return render_template('manage_grades.html', student=student, grades=grades)
-
-
-# --- NÚT 1: TÍNH NĂNG ĐỔI MẬT KHẨU ---
 @app.route('/change-password', methods=['POST'])
 def change_password():
     if 'student_id' not in session:
@@ -390,7 +334,6 @@ def change_password():
     return redirect(url_for('profile'))
 
 
-# --- NÚT 2: TÍNH NĂNG ĐỔI ẢNH ĐẠI DIỆN ---
 @app.route('/upload-avatar', methods=['POST'])
 def upload_avatar():
     if 'student_id' not in session:
@@ -420,7 +363,7 @@ def upload_avatar():
 
         flash("Cập nhật ảnh đại diện thành công!")
     else:
-        flash("Định dạng ảnh không hợp lệ! (Chỉ chấp nhận png, jpg, jpeg, gif)")
+        flash("Định dạng ảnh không hợp lệ! (Chấp nhận png, jpg, jpeg, gif)")
 
     return redirect(url_for('profile'))
 

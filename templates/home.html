@@ -24,6 +24,21 @@
                         <small class="text-muted">Xem lý lịch & điểm số</small>
                     </div>
                 </a>
+
+                <!-- CHỈ SINH VIÊN MỚI THẤY NÚT ĐĂNG KÝ MÔN HỌC -->
+                {% if session.get('role') != 'admin' %}
+                <a href="#" class="list-group-item list-group-item-action p-3 d-flex align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);" onclick="alert('Tính năng đang xây dựng!');">
+                    <div class="rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 45px; height: 45px; background-color: #fef08a; color: #ca8a04;">
+                        📝
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-dark">Đăng ký môn học</h6>
+                        <small class="text-muted">Học kỳ 1 (2026-2027)</small>
+                    </div>
+                </a>
+                {% endif %}
+
+                <!-- CHỈ ADMIN MỚI THẤY NÚT QUẢN LÝ SINH VIÊN -->
                 {% if session.get('role') == 'admin' %}
                 <a href="{{ url_for('manage') }}" class="list-group-item list-group-item-action p-3 d-flex align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);">
                     <div class="rounded-circle d-flex justify-content-center align-items-center me-3" style="width: 45px; height: 45px; background-color: #dbefe6; color: #0f766e;">
@@ -31,7 +46,7 @@
                     </div>
                     <div>
                         <h6 class="mb-0 fw-bold text-dark">Quản lý Sinh viên</h6>
-                        <small class="text-muted">Thêm/Sửa/Nhập điểm</small>
+                        <small class="text-muted">Thêm/Sửa/Xóa sinh viên</small>
                     </div>
                 </a>
                 {% endif %}
@@ -51,7 +66,7 @@
                             <small class="text-muted fw-medium">25/10/2026</small>
                         </div>
                         <h6 class="fw-bold fs-5" style="color: #0f766e;">Mở hệ thống đăng ký lịch học, thời khóa biểu Học kỳ 1</h6>
-                        <p class="mb-0 text-muted">Sinh viên chú ý đăng nhập vào hệ thống để kiểm tra lịch học tiên quyết đúng thời hạn quy định.</p>
+                        <p class="mb-0 text-muted">Sinh viên chú ý đăng nhập vào hệ thống để đăng ký các môn học tiên quyết đúng thời hạn quy định. Các lớp sẽ tự động khóa khi đủ sĩ số.</p>
                     </div>
 
                     <div class="list-group-item bg-transparent p-4 border-bottom">
@@ -59,8 +74,17 @@
                             <span class="badge bg-warning text-dark rounded-pill px-3 py-2">Phòng Giáo vụ</span>
                             <small class="text-muted fw-medium">20/10/2026</small>
                         </div>
-                        <h6 class="fw-bold fs-5" style="color: #0f766e;">Thông báo nộp học phí Học kỳ 1</h6>
-                        <p class="mb-0 text-muted">Yêu cầu toàn bộ sinh viên hoàn thành nghĩa vụ học phí đúng hạn theo hướng dẫn của Phòng Tài chính.</p>
+                        <h6 class="fw-bold fs-5" style="color: #0f766e;">Thông báo nộp học phí Học kỳ 1 năm học 2026-2027</h6>
+                        <p class="mb-0 text-muted">Yêu cầu toàn bộ sinh viên hoàn thành nghĩa vụ học phí trước ngày 15/11/2026 qua số tài khoản ngân hàng của nhà trường.</p>
+                    </div>
+
+                    <div class="list-group-item bg-transparent p-4">
+                        <div class="d-flex justify-content-between mb-2 align-items-center">
+                            <span class="badge bg-info text-dark rounded-pill px-3 py-2">Cuộc thi</span>
+                            <small class="text-muted fw-medium">18/10/2026</small>
+                        </div>
+                        <h6 class="fw-bold fs-5" style="color: #0f766e;">Phát động giải đấu Lập trình sinh viên PTIT Hackathon</h6>
+                        <p class="mb-0 text-muted">Giải thưởng hấp dẫn lên tới 50.000.000 VNĐ. Sinh viên đăng ký thi đấu theo đội 3 người tại văn phòng khoa CNTT.</p>
                     </div>
 
                 </div>
