@@ -4,11 +4,19 @@
     <h2 class="serif-text fw-bold mb-4" style="color: #0f766e;">Danh sách lớp chủ nhiệm</h2>
 
     <div class="p-4 rounded-4 shadow-sm mb-4" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
-        <form action="{{ url_for('manage') }}" method="GET" class="d-flex w-100">
-            <input type="text" name="search" class="form-control rounded-pill px-4 me-2" placeholder="Tìm kiếm theo mã hoặc tên sinh viên..." value="{{ search_query }}" style="background: rgba(255,255,255,0.9); border: 1px solid rgba(15, 118, 110, 0.2);">
-            <button type="submit" class="btn text-white rounded-pill px-4" style="background-color: #0f766e;">Tìm</button>
-            {% if search_query %}
-                <a href="{{ url_for('manage') }}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">Xóa lọc</a>
+        <form action="{{ url_for('manage') }}" method="GET" class="d-flex w-100 align-items-center">
+            <select name="class_filter" class="form-select rounded-pill px-4 me-2 w-auto border-0 shadow-sm" style="background: rgba(255,255,255,0.9); font-weight: 500;">
+                <option value="">-- Tất cả các lớp --</option>
+                {% for c in class_list %}
+                    <option value="{{ c }}" {% if class_filter == c %}selected{% endif %}>Lớp {{ c }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="search" class="form-control rounded-pill px-4 me-2 border-0 shadow-sm" placeholder="Tìm kiếm theo mã hoặc tên sinh viên..." value="{{ search_query }}" style="background: rgba(255,255,255,0.9);">
+            <button type="submit" class="btn text-white rounded-pill px-4 shadow-sm" style="background-color: #0f766e;">Lọc</button>
+
+            {% if search_query or class_filter %}
+                <a href="{{ url_for('manage') }}" class="btn btn-outline-secondary rounded-pill px-4 ms-2">Xóa bộ lọc</a>
             {% endif %}
         </form>
     </div>
@@ -34,7 +42,7 @@
                         <td><span class="badge rounded-pill" style="background-color: #d1ece5; color: #0f766e;">{{ student['class'] }}</span></td>
                         <td class="text-center">
                             <a href="{{ url_for('profile', id=student['student_id']) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 me-1 fw-medium">Hồ sơ</a>
-                            <a href="{{ url_for('edit_grades', student_id=student['student_id']) }}" class="btn btn-sm text-white rounded-pill px-3 fw-medium" style="background-color: #0f766e;">Nhập điểm</a>
+                            <a href="#" class="btn btn-sm text-white rounded-pill px-3 fw-medium" style="background-color: #0f766e;">Nhập điểm</a>
                         </td>
                     </tr>
                     {% else %}

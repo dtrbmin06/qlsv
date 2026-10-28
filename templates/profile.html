@@ -33,38 +33,38 @@
         </div>
 
         <div class="row">
-
             <div class="col-lg-4 mb-4">
-
                 <div class="card elegant-card p-4 text-center">
                     <div class="position-relative d-inline-block mx-auto mb-4 mt-3">
-                        <img src="https://ui-avatars.com/api/?name={{user['name']}}&background=d1ece5&color=0f766e&size=150"
+                        <img src="{{ avatar_path }}"
                              class="rounded-circle border border-white border-4 shadow-sm"
                              style="width: 150px; height: 150px; object-fit: cover;">
 
+                        {% if session.get('role') == 'student' %}
                         <button class="btn btn-light rounded-circle position-absolute bottom-0 end-0 shadow border"
                                 style="width: 40px; height: 40px; transform: translate(10%, 10%);"
-                                title="Đổi ảnh đại diện">
+                                title="Đổi ảnh đại diện" data-bs-toggle="modal" data-bs-target="#avatarModal">
                             📷
                         </button>
+                        {% endif %}
                     </div>
 
                     <h3 class="serif-text fw-bold">{{user['name']}}</h3>
                     <p class="text-muted mb-3">Mã SV: <strong>{{user['student_id']}}</strong></p>
 
-                    <a href="{{url_for('logout')}}" class="btn btn-outline-danger rounded-pill w-100">Đăng xuất</a>
+                    {% if session.get('role') == 'student' %}
+                    <button class="btn text-white rounded-pill w-100 mb-2 fw-medium shadow-sm" style="background-color: #0f766e;" data-bs-toggle="modal" data-bs-target="#changePassModal">Đổi mật khẩu</button>
+                    {% endif %}
                 </div>
 
                 <div class="card elegant-card p-4 mt-4">
                     <h5 class="serif-text fw-bold mb-4">Tiến độ học tập</h5>
-
                     <div class="mb-4">
                         <div class="d-flex justify-content-between align-items-end mb-2">
-                            <span class="text-muted">Điểm TBC (Hệ 10)</span>
+                            <span class="text-muted">Điểm TK (Hệ 10)</span>
                             <strong class="fs-4" style="color: #0f766e;">{{ gpa }}</strong>
                         </div>
                     </div>
-
                     <div>
                         <div class="d-flex justify-content-between mb-2">
                             <span class="text-muted">Tín chỉ tích lũy</span>
@@ -78,10 +78,8 @@
             </div>
 
             <div class="col-lg-8">
-
                 <div class="card elegant-card p-4 mb-4">
                     <h4 class="serif-text fw-bold mb-4">Lý lịch cá nhân</h4>
-
                     <ul class="list-group list-group-flush bg-transparent">
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
                             <span class="text-muted">Họ và tên</span>
@@ -104,9 +102,7 @@
                             <strong class="text-end">{{user['status']}}</strong>
                         </li>
                     </ul>
-
                     <hr style="border-top: 1.5px solid #d9534f; opacity: 0.6; margin: 0.5rem 0;">
-
                     <ul class="list-group list-group-flush bg-transparent">
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
                             <span class="text-muted">Số CMND/CCCD:</span>
@@ -154,7 +150,7 @@
                 </div>
 
                 <div class="card elegant-card p-4 mb-4">
-                    <h4 class="serif-text fw-bold mb-4">Cố vấn học tập </h4>
+                    <h4 class="serif-text fw-bold mb-4">Cố vấn học tập</h4>
                     <ul class="list-group list-group-flush bg-transparent">
                         {% if advisor %}
                         <li class="list-group-item d-flex justify-content-between bg-transparent border-bottom px-0">
@@ -193,15 +189,66 @@
     </div>
 </div>
 
+{% if session.get('role') == 'student' %}
+<div class="modal fade" id="changePassModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                <h5 class="serif-text fw-bold" style="color: #0f766e;">Đổi mật khẩu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form action="{{ url_for('change_password') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small fw-medium">Mật khẩu cũ</label>
+                        <input type="password" name="old_password" class="form-control rounded-3" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-muted small fw-medium">Mật khẩu mới (Tối thiểu 6 ký tự)</label>
+                        <input type="password" name="new_password" class="form-control rounded-3" required minlength="6">
+                    </div>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-light rounded-pill px-4 me-2" data-bs-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn text-white rounded-pill px-4" style="background-color: #0f766e;">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+
+{% if session.get('role') == 'student' %}
+<div class="modal fade" id="avatarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content rounded-4 border-0 shadow" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px);">
+            <div class="modal-header border-bottom-0 pb-0 pt-4 px-4">
+                <h6 class="serif-text fw-bold text-center w-100" style="color: #0f766e;">Cập nhật ảnh đại diện</h6>
+                <button type="button" class="btn-close position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <form action="{{ url_for('upload_avatar') }}" method="POST" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <input type="file" name="avatar" class="form-control rounded-3" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn text-white rounded-pill px-4 w-100" style="background-color: #0f766e;">Tải ảnh lên</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const labels = {{ chart_labels | tojson }};
 const dataScores = {{ chart_data | tojson }};
-
 const barColors = dataScores.map(score => score >= 4.0 ? '#22c55e' : '#ef4444');
-
 const ctx = document.getElementById('gradeChart').getContext('2d');
-
 new Chart(ctx, {
     type: 'bar',
     data: {
@@ -217,17 +264,13 @@ new Chart(ctx, {
     options: {
         maintainAspectRatio: false,
         scales: {
-            y: {
-                beginAtZero: true,
-                max: 10
-            }
+            y: { beginAtZero: true, max: 10 }
         },
         plugins: {
-            legend: {
-                display: false
-            }
+            legend: { display: false }
         }
     }
 });
+
 </script>
 {% endblock %}
