@@ -304,7 +304,6 @@ def login():
 
         conn = get_db_connection()
 
-
         user = conn.execute('SELECT * FROM students WHERE student_id = ?', (tai_khoan,)).fetchone()
 
         if user and check_password_hash(user['password'], mk):
@@ -314,7 +313,6 @@ def login():
             conn.close()
             return redirect(url_for('index'))
 
-
         advisor = conn.execute('SELECT * FROM advisors WHERE advisor_id = ?', (tai_khoan,)).fetchone()
 
         if advisor and check_password_hash(advisor['password'], mk):
@@ -322,12 +320,25 @@ def login():
             session['name'] = advisor['name']
             session['role'] = 'advisor'
             conn.close()
-            return redirect(url_for('manage'))
+            return redirect(url_for('advisor_home'))
 
         conn.close()
         flash("Sai tài khoản hoặc mật khẩu!")
 
     return render_template('login.html')
+
+
+@app.route('/advisor')
+def advisor_home():
+    if session.get('role') != 'advisor':
+        return redirect(url_for('login'))
+
+    advisor_id = session['student_id']
+    conn = get_db_connection()
+    total_students = conn.execute("SELECT COUNT(*) FROM students WHERE advisor_id = ?", (advisor_id,)).fetchone()[0]
+    conn.close()
+
+    return render_template('advisor_home.html', total_students=total_students)
 
 
 @app.route('/profile')
@@ -381,6 +392,49 @@ def profile():
         session['name'] = user['name']
 
     return render_template('profile.html', user=user, grades=grades, advisor=advisor, chart_data=chart_data, chart_labels=chart_labels, gpa=gpa, total_credits=total_credits)
+
+
+@app.route('/edit_grades/<student_id>', methods=['GET', 'POST'])
+def edit_grades(student_id):
+    if session.get('role') != 'advisor':
+        return redirect(url_for('login'))
+
+    conn = get_db_connection()
+
+    if request.method == 'POST':
+        for key in request.form:
+            if key.startswith('attendance_'):
+                subj_id = key.split('_')[1]
+                att = request.form.get(f'attendance_{subj_id}')
+                mid = request.form.get(f'midterm_{subj_id}')
+                fin = request.form.get(f'final_{subj_id}')
+
+                conn.execute('''
+                    UPDATE grades 
+                    SET attendance_score = ?, midterm_score = ?, final_score = ? 
+                    WHERE student_id = ? AND subject_id = ?
+                ''', (att, mid, fin, student_id, subj_id))
+        conn.commit()
+        conn.close()
+        flash("Cập nhật điểm thành công!")
+        return redirect(url_for('manage'))
+
+    student = conn.execute('SELECT * FROM students WHERE student_id = ? AND advisor_id = ?',
+                           (student_id, session['student_id'])).fetchone()
+
+    if not student:
+        conn.close()
+        return redirect(url_for('manage'))
+
+    grades = conn.execute('''
+        SELECT s.subject_id, s.subject_name, g.attendance_score, g.midterm_score, g.final_score
+        FROM subjects s
+        JOIN grades g ON g.subject_id = s.subject_id
+        WHERE g.student_id = ?
+    ''', (student_id,)).fetchall()
+
+    conn.close()
+    return render_template('edit_grades.html', student=student, grades=grades)
 
 
 

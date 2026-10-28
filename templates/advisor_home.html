@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="p-5 mb-4 rounded-4 shadow-sm position-relative overflow-hidden" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+        <div class="position-relative" style="z-index: 2;">
+            <h2 class="serif-text fw-bold" style="color: #0f766e;">Tổng quan Học vụ</h2>
+            <p class="text-muted fs-5 mb-0">Chào thầy/cô <strong class="text-dark">{{ session.get('name') }}</strong>. Chúc thầy/cô một ngày làm việc hiệu quả!</p>
+        </div>
+        <div class="position-absolute" style="top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(15,118,110,0.1) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;"></div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 d-flex align-items-center flex-row mb-4" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 60px; height: 60px; background-color: #d1ece5; color: #0f766e; font-size: 1.8rem;">
+                    👥
+                </div>
+                <div>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_students }}</h3>
+                    <span class="text-muted">Sinh viên quản lý</span>
+                </div>
+            </div>
+
+            <div class="card border-0 rounded-4 shadow-sm p-4" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <h5 class="serif-text fw-bold mb-3" style="color: #c53030;">Cảnh báo học vụ</h5>
+                <div class="text-center py-3">
+                    <span class="fs-1">🏆</span>
+                    <p class="text-muted mt-2 mb-0">Tuyệt vời! Lớp không có sinh viên nào rơi vào mức cảnh báo.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 16px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px);">
+                <h5 class="serif-text fw-bold mb-3" style="color: #2c3e50;">Thông báo từ nhà trường</h5>
+                <div class="list-group list-group-flush bg-transparent">
+                    <div class="list-group-item bg-transparent p-3 border-bottom px-0">
+                        <div class="d-flex justify-content-between mb-1 align-items-center">
+                            <span class="badge bg-danger rounded-pill px-3 py-1">Khẩn</span>
+                            <small class="text-muted fw-medium">28/10/2026</small>
+                        </div>
+                        <h6 class="fw-bold" style="color: #0f766e;">Hạn chót nhập điểm giữa kỳ 1</h6>
+                        <p class="mb-0 text-muted small">Yêu cầu các Cố vấn học tập đôn đốc giảng viên bộ môn hoàn thành nhập điểm trước ngày 05/11.</p>
+                    </div>
+                    <div class="list-group-item bg-transparent p-3 px-0 border-bottom">
+                        <div class="d-flex justify-content-between mb-1 align-items-center">
+                            <span class="badge bg-warning text-dark rounded-pill px-3 py-1">Đào tạo</span>
+                            <small class="text-muted fw-medium">25/10/2026</small>
+                        </div>
+                        <h6 class="fw-bold" style="color: #0f766e;">Lịch họp giao ban Cố vấn học tập tháng 10</h6>
+                        <p class="mb-0 text-muted small">Họp trực tuyến qua MS Teams vào lúc 14h00 thứ Sáu tuần này.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

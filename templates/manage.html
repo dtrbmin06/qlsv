@@ -1,28 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4 mb-5">
-
-    <div class="p-5 mb-4 rounded-4 shadow-sm position-relative overflow-hidden" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
-        <div class="position-relative" style="z-index: 2;">
-            <h2 class="serif-text fw-bold" style="color: #0f766e;">Bảng điều khiển Cố vấn</h2>
-            <p class="text-muted fs-5 mb-0">Chào thầy/cô <strong class="text-dark">{{ session.get('name') }}</strong>. Chúc thầy/cô một ngày làm việc hiệu quả!</p>
-        </div>
-        <div class="position-absolute" style="top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(15,118,110,0.1) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;"></div>
-    </div>
-
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card border-0 rounded-4 shadow-sm p-4 d-flex align-items-center flex-row" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
-                <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 60px; height: 60px; background-color: #d1ece5; color: #0f766e; font-size: 1.8rem;">
-                    👥
-                </div>
-                <div>
-                    <h3 class="fw-bold mb-0 text-dark">{{ total_students }}</h3>
-                    <span class="text-muted">Sinh viên quản lý</span>
-                </div>
-            </div>
-        </div>
-    </div>
+    <h2 class="serif-text fw-bold mb-4" style="color: #0f766e;">Danh sách lớp chủ nhiệm</h2>
 
     <div class="p-4 rounded-4 shadow-sm mb-4" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
         <form action="{{ url_for('manage') }}" method="GET" class="d-flex w-100">
@@ -55,7 +34,7 @@
                         <td><span class="badge rounded-pill" style="background-color: #d1ece5; color: #0f766e;">{{ student['class'] }}</span></td>
                         <td class="text-center">
                             <a href="{{ url_for('profile', id=student['student_id']) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 me-1 fw-medium">Hồ sơ</a>
-                            <a href="#" class="btn btn-sm text-white rounded-pill px-3 fw-medium" style="background-color: #0f766e;">Nhập điểm</a>
+                            <a href="{{ url_for('edit_grades', student_id=student['student_id']) }}" class="btn btn-sm text-white rounded-pill px-3 fw-medium" style="background-color: #0f766e;">Nhập điểm</a>
                         </td>
                     </tr>
                     {% else %}
