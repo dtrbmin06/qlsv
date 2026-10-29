@@ -115,6 +115,36 @@
                         </div>
                     </div>
                 </div>
+
+
+
+                <div class="card elegant-card p-4 mt-4">
+                    <h5 class="serif-text fw-bold mb-4">Điểm các học phần</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-borderless align-middle mb-0">
+                            <tbody>
+                                {% for g in grades %}
+                                <tr style="border-bottom: 1px dashed #e2e8f0;">
+                                    <td class="py-3 text-muted fw-medium small" style="max-width: 140px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ g['subject_name'] }}">
+                                        {{ g['subject_name'] }}
+                                    </td>
+                                    <td class="py-3 text-end">
+                                        {% set tk = (g['attendance_score']*0.1 + g['midterm_score']*0.2 + g['final_score']*0.7) | round(1) %}
+                                        <strong class="fs-5" style="color: {% if tk >= 8.0 %}#22c55e{% elif tk >= 6.5 %}#3b82f6{% elif tk >= 5.0 %}#d97706{% else %}#ef4444{% endif %};">
+                                            {{ tk }}
+                                        </strong>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td class="text-muted small text-center py-3">Chưa có dữ liệu.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
 
             <div class="col-lg-8">

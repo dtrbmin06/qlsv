@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-4 mb-5">
-    <h2 class="serif-text fw-bold mb-4" style="color: #0f766e;">Danh sách lớp chủ nhiệm</h2>
+<div class="container-fluid px-lg-5 mt-4 mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+            <h2 class="serif-text fw-bold mb-1" style="color: #0f766e;">Danh sách lớp</h2>
+            <p class="text-muted fs-5 mb-0">Quản lý hồ sơ, tình trạng và điểm số của sinh viên</p>
+        </div>
+    </div>
 
     <div class="p-4 rounded-4 shadow-sm mb-4" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
         <form action="{{ url_for('manage') }}" method="GET" class="d-flex w-100 align-items-center">
@@ -26,11 +31,13 @@
             <table class="table table-hover align-middle mb-0">
                 <thead style="background-color: rgba(15, 118, 110, 0.1);">
                     <tr>
-                        <th class="py-3 px-4 text-center" style="color: #2c3e50;">STT</th>
-                        <th class="py-3" style="color: #2c3e50;">Mã SV</th>
-                        <th class="py-3" style="color: #2c3e50;">Họ và Tên</th>
-                        <th class="py-3" style="color: #2c3e50;">Lớp</th>
-                        <th class="py-3 text-center" style="color: #2c3e50;">Thao tác</th>
+                        <th class="py-3 px-4 text-center" style="color: #2c3e50; width: 5%;">STT</th>
+                        <th class="py-3" style="color: #2c3e50; width: 15%;">Mã SV</th>
+                        <th class="py-3" style="color: #2c3e50; width: 20%;">Họ và Tên</th>
+                        <th class="py-3" style="color: #2c3e50; width: 10%;">Lớp</th>
+                        <th class="py-3" style="color: #2c3e50; width: 20%;">Email</th>
+                        <th class="py-3 text-center" style="color: #2c3e50; width: 15%;">Trạng thái</th>
+                        <th class="py-3 text-center" style="color: #2c3e50; width: 15%;">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,15 +47,20 @@
                         <td class="fw-bold" style="color: #0f766e;">{{ student['student_id'] }}</td>
                         <td class="fw-medium">{{ student['name'] }}</td>
                         <td><span class="badge rounded-pill" style="background-color: #d1ece5; color: #0f766e;">{{ student['class'] }}</span></td>
+                        <td class="text-muted small">{{ student['email'] }}</td>
                         <td class="text-center">
-                            <a href="{{ url_for('profile', id=student['student_id']) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 me-1 fw-medium">Hồ sơ</a>
-                            <a href="{{ url_for('edit_grades', student_id=student['student_id']) }}" class="btn btn-sm text-white rounded-pill px-3 fw-medium" style="background-color: #0f766e;">Nhập điểm</a>
+                            <span class="badge bg-success rounded-pill px-3">{{ student['status'] }}</span>
+                        </td>
+                        <td class="text-center">
+                            <a href="{{ url_for('profile', id=student['student_id']) }}" class="btn btn-sm btn-outline-info rounded-pill px-3 mb-1 w-100">Hồ sơ</a>
+                            <a href="{{ url_for('edit_grades', student_id=student['student_id']) }}" class="btn btn-sm text-white rounded-pill px-3 w-100" style="background-color: #0f766e;">Nhập điểm</a>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="5" class="text-center py-5 text-muted">
-                            Không tìm thấy sinh viên nào trong danh sách quản lý.
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <div class="fs-1 mb-2">🔍</div>
+                            Không tìm thấy sinh viên nào khớp với điều kiện lọc.
                         </td>
                     </tr>
                     {% endfor %}
@@ -56,25 +68,22 @@
             </table>
         </div>
 
-        {% if total_pages > 1 %}
-        <div class="d-flex justify-content-center py-3 border-top">
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item {% if page == 1 %}disabled{% endif %}">
-                        <a class="page-link rounded-circle me-1 border-0 text-dark" href="{{ url_for('manage', page=page-1, search=search_query) }}" style="background: transparent;">&laquo;</a>
-                    </li>
-                    {% for p in range(1, total_pages + 1) %}
-                    <li class="page-item {% if p == page %}active{% endif %}">
-                        <a class="page-link rounded-circle me-1 border-0 {% if p == page %}text-white fw-bold shadow-sm{% else %}text-dark{% endif %}" href="{{ url_for('manage', page=p, search=search_query) }}" style="{% if p == page %}background-color: #0f766e;{% else %}background: transparent;{% endif %}">{{ p }}</a>
-                    </li>
-                    {% endfor %}
-                    <li class="page-item {% if page == total_pages %}disabled{% endif %}">
-                        <a class="page-link rounded-circle border-0 text-dark" href="{{ url_for('manage', page=page+1, search=search_query) }}" style="background: transparent;">&raquo;</a>
-                    </li>
-                </ul>
-            </nav>
+        <div class="p-3 bg-light border-top d-flex justify-content-between align-items-center">
+            <span class="text-muted small fw-medium">Đang hiển thị trang {{ page }} / {{ total_pages }}</span>
+            <div class="btn-group shadow-sm">
+                {% if page > 1 %}
+                    <a href="{{ url_for('manage', page=page-1, search=search_query, class_filter=class_filter) }}" class="btn btn-sm btn-outline-secondary">Trước</a>
+                {% else %}
+                    <button class="btn btn-sm btn-outline-secondary" disabled>Trước</button>
+                {% endif %}
+
+                {% if page < total_pages %}
+                    <a href="{{ url_for('manage', page=page+1, search=search_query, class_filter=class_filter) }}" class="btn btn-sm btn-outline-secondary">Sau</a>
+                {% else %}
+                    <button class="btn btn-sm btn-outline-secondary" disabled>Sau</button>
+                {% endif %}
+            </div>
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

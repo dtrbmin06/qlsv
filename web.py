@@ -3,6 +3,9 @@ import math
 import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import Response
+
+
 
 app = Flask(__name__)
 # Đọc secret key từ biến môi trường, có fallback để dev
@@ -323,13 +326,36 @@ def advisor_home():
     advisor_id = session['student_id']
     conn = get_db_connection()
 
-    total_students = conn.execute("SELECT COUNT(*) FROM students WHERE advisor_id = ?", (advisor_id,)).fetchone()[0]
-    students = conn.execute("SELECT student_id, name FROM students WHERE advisor_id = ?", (advisor_id,)).fetchall()
+    students = conn.execute("SELECT * FROM students WHERE advisor_id = ?", (advisor_id,)).fetchall()
+    total_students = len(students)
 
     warning_students = []
+    top_students = []
+
+    # Biến đếm thống kê
     stats = {'gioi': 0, 'kha': 0, 'tb': 0, 'yeu': 0}
+    training_stats = {'xs': 0, 'tot': 0, 'kha': 0, 'tb': 0, 'yeu': 0}
+
+    total_class_gpa = 0
+    total_class_training = 0
+    student_data_list = []
 
     for s in students:
+        training_score = s['training_score'] if s['training_score'] else 0
+        total_class_training += training_score
+
+        # Phân loại Điểm rèn luyện
+        if training_score >= 90:
+            training_stats['xs'] += 1
+        elif training_score >= 80:
+            training_stats['tot'] += 1
+        elif training_score >= 65:
+            training_stats['kha'] += 1
+        elif training_score >= 50:
+            training_stats['tb'] += 1
+        else:
+            training_stats['yeu'] += 1
+
         grades = conn.execute('''
             SELECT attendance_score, midterm_score, final_score, credits 
             FROM grades 
@@ -337,17 +363,19 @@ def advisor_home():
             WHERE student_id = ?
         ''', (s['student_id'],)).fetchall()
 
-        if grades:
-            failed_subjects = 0
-            total_score = 0
-            total_credits = 0
+        failed_subjects = 0
+        student_total_score = 0
+        student_total_credits = 0
 
+        if grades:
             for g in grades:
                 tong_ket = round(g['attendance_score'] * 0.1 + g['midterm_score'] * 0.2 + g['final_score'] * 0.7, 1)
                 if tong_ket < 4.0:
                     failed_subjects += 1
-                total_score += (tong_ket * g['credits'])
-                total_credits += g['credits']
+                student_total_score += (tong_ket * g['credits'])
+                student_total_credits += g['credits']
+
+            gpa = round(student_total_score / student_total_credits, 2) if student_total_credits > 0 else 0
 
             if failed_subjects > 0:
                 warning_students.append({
@@ -356,7 +384,6 @@ def advisor_home():
                     'failed_count': failed_subjects
                 })
 
-            gpa = round(total_score / total_credits, 2) if total_credits > 0 else 0
             if gpa >= 8.0:
                 stats['gioi'] += 1
             elif gpa >= 6.5:
@@ -366,11 +393,33 @@ def advisor_home():
             else:
                 stats['yeu'] += 1
 
-    conn.close()
-    chart_data = [stats['gioi'], stats['kha'], stats['tb'], stats['yeu']]
+            total_class_gpa += gpa
+            student_data_list.append({'id': s['student_id'], 'name': s['name'], 'gpa': gpa, 'training': training_score})
+        else:
+            student_data_list.append({'id': s['student_id'], 'name': s['name'], 'gpa': 0, 'training': training_score})
 
-    return render_template('advisor_home.html', total_students=total_students, warning_students=warning_students,
-                           chart_data=chart_data)
+    avg_gpa = round(total_class_gpa / total_students, 2) if total_students > 0 else 0
+    avg_training = round(total_class_training / total_students, 1) if total_students > 0 else 0
+
+    student_data_list.sort(key=lambda x: x['gpa'], reverse=True)
+    top_students = student_data_list[:3]
+
+    conn.close()
+
+    chart_data = [stats['gioi'], stats['kha'], stats['tb'], stats['yeu']]
+    training_chart_data = [training_stats['xs'], training_stats['tot'], training_stats['kha'], training_stats['tb'],
+                           training_stats['yeu']]
+    warning_count = len(warning_students)
+
+    return render_template('advisor_home.html',
+                           total_students=total_students,
+                           warning_students=warning_students,
+                           warning_count=warning_count,
+                           chart_data=chart_data,
+                           training_chart_data=training_chart_data,
+                           top_students=top_students,
+                           avg_gpa=avg_gpa,
+                           avg_training=avg_training)
 
 
 @app.route('/manage')

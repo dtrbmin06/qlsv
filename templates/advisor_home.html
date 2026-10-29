@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4 mb-5">
+    <!-- Header vinh danh -->
     <div class="p-5 mb-4 rounded-4 shadow-sm position-relative overflow-hidden" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
         <div class="position-relative" style="z-index: 2;">
             <h2 class="serif-text fw-bold" style="color: #0f766e;">Tổng quan Học vụ</h2>
@@ -9,53 +10,121 @@
         <div class="position-absolute" style="top: -50px; right: -50px; width: 200px; height: 200px; background: radial-gradient(circle, rgba(15,118,110,0.1) 0%, rgba(255,255,255,0) 70%); border-radius: 50%;"></div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-4 mb-4">
-            <div class="card border-0 rounded-4 shadow-sm p-4 d-flex align-items-center flex-row mb-4" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
-                <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 60px; height: 60px; background-color: #d1ece5; color: #0f766e; font-size: 1.8rem;">
-                    👥
-                </div>
-                <div>
-                    <h3 class="fw-bold mb-0 text-dark">{{ total_students }}</h3>
-                    <span class="text-muted">Sinh viên quản lý</span>
-                </div>
+    <!-- Hàng 1: Bốn thẻ chỉ số nhanh -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 rounded-4 shadow-sm p-3 h-100 d-flex flex-row align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 50px; height: 50px; background-color: #d1ece5; color: #0f766e; font-size: 1.5rem;">👥</div>
+                <div><h4 class="fw-bold mb-0 text-dark">{{ total_students }}</h4><span class="text-muted small">Sinh viên</span></div>
             </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 rounded-4 shadow-sm p-3 h-100 d-flex flex-row align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 50px; height: 50px; background-color: #fee2e2; color: #ef4444; font-size: 1.5rem;">⚠️</div>
+                <div><h4 class="fw-bold mb-0 text-dark">{{ warning_count }}</h4><span class="text-muted small">Cảnh báo</span></div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 rounded-4 shadow-sm p-3 h-100 d-flex flex-row align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 50px; height: 50px; background-color: #e0e7ff; color: #3b82f6; font-size: 1.5rem;">📈</div>
+                <div><h4 class="fw-bold mb-0 text-dark">{{ avg_gpa }}</h4><span class="text-muted small">GPA Lớp</span></div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card border-0 rounded-4 shadow-sm p-3 h-100 d-flex flex-row align-items-center" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <div class="rounded-circle d-flex justify-content-center align-items-center me-3 shadow-sm" style="width: 50px; height: 50px; background-color: #fef3c7; color: #f59e0b; font-size: 1.5rem;">⭐</div>
+                <div><h4 class="fw-bold mb-0 text-dark">{{ avg_training }}</h4><span class="text-muted small">ĐRL Lớp</span></div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Hàng 2: Hai cột Danh sách (Cảnh báo & Vinh danh) -->
+    <div class="row mb-4">
+        <!-- Cột trái: Cảnh báo -->
+        <div class="col-lg-6 mb-4">
             <div class="card border-0 rounded-4 shadow-sm p-4 h-100" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
-                <h5 class="serif-text fw-bold mb-3" style="color: #c53030;">Cảnh báo học vụ</h5>
+                <h5 class="serif-text fw-bold mb-4" style="color: #c53030;">Cảnh báo học vụ</h5>
                 {% if warning_students %}
                     <div class="list-group list-group-flush bg-transparent">
                     {% for w in warning_students %}
-                        <div class="list-group-item bg-transparent px-0 border-bottom">
+                        <div class="list-group-item bg-transparent px-0 border-bottom py-3">
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="fw-bold mb-1" style="color: #2c3e50;">{{ w.name }}</h6>
                                     <small class="text-muted">{{ w.id }}</small>
                                 </div>
                                 <div class="d-flex align-items-center">
-    <span class="badge bg-danger rounded-pill px-3 py-2 me-2">Nợ {{ w.failed_count }} môn</span>
-    <form action="{{ url_for('send_warning', student_id=w.id) }}" method="POST" class="m-0">
-        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Gửi cảnh báo">🔔</button>
-    </form>
-</div>
+                                    <span class="badge bg-danger rounded-pill px-3 py-2 me-2">Nợ {{ w.failed_count }} môn</span>
+                                    <form action="{{ url_for('send_warning', student_id=w.id) }}" method="POST" class="m-0">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill" title="Gửi cảnh báo">🔔</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     {% endfor %}
                     </div>
                 {% else %}
-                    <div class="text-center py-3">
+                    <div class="text-center py-5">
                         <span class="fs-1">🏆</span>
-                        <p class="text-muted mt-2 mb-0">Tuyệt vời! Lớp không có sinh viên nào nợ môn.</p>
+                        <p class="text-muted mt-3 mb-0">Tuyệt vời! Lớp không có sinh viên nào nợ môn.</p>
                     </div>
                 {% endif %}
             </div>
         </div>
 
-        <div class="col-lg-8 mb-4">
-            <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 16px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px);">
-                <h5 class="serif-text fw-bold mb-4" style="color: #2c3e50;">Chất lượng Học tập Lớp chủ nhiệm</h5>
-                <div class="d-flex justify-content-center align-items-center" style="height: 320px; width: 100%;">
+        <!-- Cột phải: Bảng vàng -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <h5 class="serif-text fw-bold mb-4" style="color: #0f766e;">Top Sinh Viên Xuất Sắc</h5>
+                {% if top_students %}
+                    <div class="list-group list-group-flush bg-transparent">
+                    {% for t in top_students %}
+                        <div class="list-group-item bg-transparent px-0 border-bottom py-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="fs-3 me-3">
+                                        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-bold mb-1" style="color: #2c3e50;">{{ t.name }}</h6>
+                                        <small class="text-muted">{{ t.id }}</small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <div class="badge bg-success rounded-pill px-3 py-1 mb-1 fs-6">{{ t.gpa }}</div>
+                                    <div class="small text-muted fw-bold d-block">ĐRL: {{ t.training }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <span class="fs-1">📚</span>
+                        <p class="text-muted mt-3 mb-0">Chưa có đủ dữ liệu học tập.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Biểu đồ Học tập (Tròn) -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 16px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <h5 class="serif-text fw-bold mb-4 text-center" style="color: #2c3e50;">Phổ Điểm Học Tập (GPA)</h5>
+                <div class="d-flex justify-content-center align-items-center" style="height: 300px; width: 100%;">
                     <canvas id="qualityChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Biểu đồ Rèn luyện (Cột) -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm p-4 h-100" style="border-radius: 16px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.8);">
+                <h5 class="serif-text fw-bold mb-4 text-center" style="color: #0f766e;">Xếp Loại Điểm Rèn Luyện</h5>
+                <div class="d-flex justify-content-center align-items-center" style="height: 300px; width: 100%;">
+                    <canvas id="trainingChart"></canvas>
                 </div>
             </div>
         </div>
@@ -64,26 +133,50 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const data = {{ chart_data | tojson }};
-    const ctx = document.getElementById('qualityChart').getContext('2d');
-
-    new Chart(ctx, {
+    // 1. Vẽ biểu đồ Học tập (Doughnut)
+    const gpaData = {{ chart_data | tojson }};
+    const ctxGpa = document.getElementById('qualityChart').getContext('2d');
+    new Chart(ctxGpa, {
         type: 'doughnut',
         data: {
             labels: ['Giỏi (>=8.0)', 'Khá (6.5 - 7.9)', 'Trung bình (5.0 - 6.4)', 'Yếu (<5.0)'],
             datasets: [{
-                data: data,
+                data: gpaData,
                 backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'],
                 borderWidth: 0,
-                hoverOffset: 4
+                hoverOffset: 8
             }]
         },
         options: {
             maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right' }
-            },
-            cutout: '70%'
+            plugins: { legend: { position: 'bottom' } },
+            cutout: '65%'
+        }
+    });
+
+    // 2. Vẽ biểu đồ Rèn luyện (Bar chart)
+    const trainingData = {{ training_chart_data | tojson }};
+    const ctxTraining = document.getElementById('trainingChart').getContext('2d');
+    new Chart(ctxTraining, {
+        type: 'bar',
+        data: {
+            labels: ['Xuất sắc', 'Tốt', 'Khá', 'Trung bình', 'Yếu'],
+            datasets: [{
+                label: 'Số lượng sinh viên',
+                data: trainingData,
+                backgroundColor: ['#8b5cf6', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1, precision: 0 }
+                }
+            }
         }
     });
 </script>
