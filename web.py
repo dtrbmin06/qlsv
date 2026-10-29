@@ -10,7 +10,7 @@ from flask import Response
 app = Flask(__name__)
 # Đọc secret key từ biến môi trường, có fallback để dev
 app.secret_key = os.getenv('SECRET_KEY', 'qlsv_secret_key_2026_default')
-STUDENTS_PER_PAGE = 5
+STUDENTS_PER_PAGE = 40
 
 
 def get_db_connection():
