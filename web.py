@@ -453,10 +453,11 @@ def profile():
         conn.close()
         return redirect(url_for('index'))
 
+    # ĐOẠN LẤY THÔNG BÁO CHO SINH VIÊN
     notifications = []
     unread_count = 0
     if session.get('role') == 'student':
-        notifications = conn.execute('SELECT * FROM notifications WHERE student_id = ? ORDER BY id DESC',(target_id,)).fetchall()
+        notifications = conn.execute('SELECT * FROM notifications WHERE student_id = ? ORDER BY id DESC', (target_id,)).fetchall()
         unread_count = len([n for n in notifications if n['is_read'] == 0])
 
     grades = conn.execute('''
@@ -484,8 +485,6 @@ def profile():
     if user['advisor_id']:
         advisor = conn.execute('Select * from advisors where advisor_id=?', (user['advisor_id'],)).fetchone()
 
-
-
     conn.close()
 
     if session.get('role') != 'advisor' and user['student_id'] == session.get('student_id'):
@@ -497,8 +496,10 @@ def profile():
     else:
         avatar_path = f"https://ui-avatars.com/api/?name={user['name']}&background=d1ece5&color=0f766e&size=150"
 
-    return render_template('profile.html', user=user, grades=grades, advisor=advisor, chart_data=chart_data,  chart_labels=chart_labels, gpa=gpa, total_credits=total_credits, avatar_path=avatar_path,notifications=notifications, unread_count=unread_count)
-
+    # CHÚ Ý DÒNG RETURN NÀY: Đã thêm notifications và unread_count
+    return render_template('profile.html', user=user, grades=grades, advisor=advisor, chart_data=chart_data,
+                           chart_labels=chart_labels, gpa=gpa, total_credits=total_credits, avatar_path=avatar_path,
+                           notifications=notifications, unread_count=unread_count)
 
 
 

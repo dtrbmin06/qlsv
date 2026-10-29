@@ -28,6 +28,40 @@
 
 <div class="profile-wrapper">
     <div class="container px-lg-5">
+        <!-- KHỐI CHUÔNG THÔNG BÁO BẮT ĐẦU -->
+        {% if session.get('role') == 'student' %}
+        <div class="d-flex justify-content-end mb-3 pt-3">
+            <div class="dropdown">
+                <button class="btn btn-light rounded-circle shadow-sm position-relative p-2 border" type="button" data-bs-toggle="dropdown">
+                    <span class="fs-5">🔔</span>
+                    {% if unread_count > 0 %}
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-white">
+                        {{ unread_count }}
+                    </span>
+                    {% endif %}
+                </button>
+                <div class="dropdown-menu dropdown-menu-end p-3 shadow-lg border-0 rounded-4" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                    <h6 class="fw-bold border-bottom pb-2 mb-2" style="color: #0f766e;">Thông báo của bạn</h6>
+                    {% for n in notifications %}
+                        <div class="p-2 mb-2 rounded-3 {% if n['is_read'] == 0 %}bg-light border-start border-4 border-danger{% endif %}">
+                            <small class="text-muted" style="font-size: 0.75rem;">{{ n['created_at'] }}</small>
+                            <p class="mb-0 mt-1 small fw-medium" style="color: #2c3e50;">{{ n['message'] }}</p>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center small mb-0 py-3">Bạn không có thông báo nào.</p>
+                    {% endfor %}
+                    {% if unread_count > 0 %}
+                    <form action="{{ url_for('read_notifications') }}" method="POST" class="mt-2">
+                        <button type="submit" class="btn btn-sm text-white w-100 rounded-pill fw-bold" style="background-color: #0f766e;">Đánh dấu đã đọc</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <!-- KHỐI CHUÔNG THÔNG BÁO KẾT THÚC -->
+
+        
         <div class="text-center mb-5">
             <h2 class="serif-text fw-bold">Thông tin Sinh viên</h2>
         </div>
